@@ -6,240 +6,821 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.0/dist/sweetalert2.min.css" rel="stylesheet">
   <style>
-    body { background-color: #f8f9fa; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-    .app-container { max-width: 1200px; margin: 20px auto; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+    /* ==========================================
+       IDENTIDAD FLOEMA RNME - LAYOUT SÓLIDO
+       ========================================== */
+    :root {
+      --floema-primary: #00A5C2;       /* El Cian solicitado (Reemplazo del #243F5C) */
+      --floema-primary-hover: #007D93; /* Cian oscurecido para hovers */
+      --floema-secondary: #1E5631;     /* Verde corporativo para acentos/éxito */
+      --floema-sidebar: #028DA8;       /* Sidebar sólido en Cian */
+      --floema-bg: #F4F6F9;            /* Fondo gris claro profesional (ERP) */
+      --floema-surface: #FFFFFF;       /* Fondo de las tarjetas */
+      --floema-text: #333333;
+      --floema-border: #E2E8F0;
+    }
+
+    body { 
+      background-color: var(--floema-bg) !important; 
+      color: var(--floema-text) !important;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      overflow-x: hidden;
+    }
+
+    [v-cloak] { display: none; }
     .cursor-pointer { cursor: pointer; }
-    .list-group-item.active { background-color: #0d6efd; color: white; border-color: #0d6efd; }
+
+    /* ==========================================
+       LAYOUT: SIDEBAR (ANCLADO Y SÓLIDO)
+       ========================================== */
+    .sidebar {
+      width: 260px;
+      height: 100vh;
+      position: fixed;
+      top: 0; left: 0;
+      background-color: var(--floema-sidebar) !important;
+      color: white;
+      box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar-logo {
+      padding: 20px;
+      text-align: center;
+      background-color: rgba(0,0,0,0.05); /* Leve oscurecimiento en la zona del logo */
+      border-bottom: 1px solid rgba(255,255,255,0.15);
+      margin-bottom: 10px;
+    }
+
+    .sidebar-logo img {
+      max-width: 95%;    /* Aprovecha más el espacio */
+      height: auto;      /* Mantiene proporción */
+      border-radius: 8px; /* Suaviza las esquinas de la imagen del logo */
+      /* Se eliminaron: background: white, padding y el box-shadow pesado */
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Sombra muy sutil para despegarlo apenas del fondo */
+    }
+
+    .sidebar-nav { flex-grow: 1; padding-top: 10px; }
+
+    .sidebar-link {
+      display: block;
+      padding: 12px 25px;
+      color: rgba(255,255,255,0.9);
+      text-decoration: none;
+      font-weight: 500;
+      border-left: 5px solid transparent;
+      transition: all 0.2s ease-in-out;
+    }
+
+    .sidebar-link:hover, .sidebar-link.active {
+      background-color: rgba(0,0,0,0.1) !important; /* Oscurece el cian de fondo */
+      border-left-color: #FFFFFF !important; /* Barra indicadora blanca */
+      color: white;
+    }
+
+    /* ==========================================
+       LAYOUT: CONTENIDO PRINCIPAL
+       ========================================== */
+    .main-content {
+      margin-left: 260px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .top-header {
+      background: var(--floema-surface);
+      border-bottom: 2px solid var(--floema-primary);
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+    }
+
+    .app-container { padding: 30px; flex-grow: 1; }
+
+    /* ==========================================
+       TARJETAS BOOTSTRAP (SUPERFICIES)
+       ========================================== */
+    .card {
+      border: 1px solid var(--floema-border) !important;
+      border-radius: 8px !important;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.04) !important;
+      background-color: var(--floema-surface) !important;
+    }
+    
+    .card-header {
+      background: var(--floema-surface) !important;
+      border-bottom: 1px solid var(--floema-border) !important;
+      padding: 15px 20px !important;
+    }
+    
+    /* El título por defecto es oscuro/cian, pero se vuelve blanco si la cabecera tiene color */
+    .card-header h5 { color: var(--floema-primary); font-weight: 600; margin: 0; }
+    
+    .card-header.bg-primary { background-color: var(--floema-primary) !important; color: white !important; border-color: var(--floema-primary) !important; }
+    .card-header.bg-primary h5 { color: white !important; }
+    
+    .card-header.bg-dark { background-color: #0097B2 !important; color: white !important; }
+    .card-header.bg-dark h5 { color: white !important; }
+
+    /* ==========================================
+       BOTONES Y CONTROLES
+       ========================================== */
+    .btn { border-radius: 6px !important; font-weight: 500 !important; }
+    
+    .btn-primary { 
+      background-color: var(--floema-primary) !important; 
+      border-color: var(--floema-primary) !important; 
+    }
+    .btn-primary:hover { background-color: var(--floema-primary-hover) !important; }
+    
+    /* El verde lo dejamos para acciones de éxito (Guardar) */
+    .btn-success { background-color: var(--floema-secondary) !important; border-color: var(--floema-secondary) !important; }
+    
+    .btn-outline-primary {
+      color: var(--floema-primary) !important;
+      border-color: var(--floema-primary) !important;
+    }
+    .btn-outline-primary:hover {
+      background-color: var(--floema-primary) !important; color: white !important;
+    }
+
+    .bg-primary { background-color: var(--floema-primary) !important; }
+    .bg-dark { background-color: #007D93 !important; } /* Cabeceras de tabla oscuras para contraste */
+    
+    .list-group-item.active { 
+      background-color: var(--floema-primary) !important; 
+      color: white !important; 
+      border-color: var(--floema-primary) !important; 
+    }
+
+    /* ==========================================
+       TABLAS RESPONSIVAS Y SCROLL CORREGIDO
+       ========================================== */
+    .table-light th { 
+      background-color: var(--floema-bg) !important; 
+      color: var(--floema-text); 
+      font-weight: 600; 
+      border-bottom: 2px solid var(--floema-border); 
+      position: sticky; 
+      top: 0; 
+      z-index: 20; 
+      box-shadow: 0 2px 2px -1px rgba(0,0,0,0.1); 
+    }
+    .table td { vertical-align: middle; border-color: var(--floema-border); background-color: var(--floema-surface) !important; }
+    .table-hover tbody tr:hover td { background-color: rgba(0, 151, 178, 0.05) !important; }
+    
+    .form-control, .form-select { border-radius: 6px; border: 1px solid var(--floema-border); }
+    .form-control:focus, .form-select:focus { border-color: var(--floema-primary); box-shadow: 0 0 0 0.25rem rgba(0, 151, 178, 0.25); }
+
+    /* ==========================================
+       DRAG & DROP (REORDENAMIENTO DE FORMULARIOS)
+       ========================================== */
+    .cursor-move { cursor: grab; }
+    .cursor-move:active { cursor: grabbing; }
+    
+    /* Efecto "Fantasma" de la tarjeta que estás arrastrando */
+    .drag-ghost { 
+      opacity: 0.4; 
+      border: 2px dashed var(--floema-primary) !important; 
+      background-color: var(--floema-bg) !important;
+    }
+    
+    /* Línea indicadora de dónde va a caer la tarjeta */
+    .drag-over { 
+      border-top: 4px solid var(--floema-secondary) !important; 
+      transform: translateY(2px);
+      transition: all 0.1s ease-in-out;
+    }
+
+    /* ==========================================
+       LAYOUT: SIDEBAR (ANCLADO Y SÓLIDO)
+       ========================================== */
+    .sidebar {
+      width: 260px;
+      height: 100vh;
+      position: fixed;
+      top: 0; left: 0;
+      background-color: var(--floema-sidebar) !important;
+      color: white;
+      box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.3s ease-in-out; /* NUEVO: Transición suave */
+    }
+
+    /* NUEVO: Clase para cuando el menú se cierra */
+    .sidebar.colapsado {
+      transform: translateX(-260px); 
+    }
+
+    /* ==========================================
+       LAYOUT: CONTENIDO PRINCIPAL
+       ========================================== */
+    .main-content {
+      margin-left: 260px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      transition: margin-left 0.3s ease-in-out; /* NUEVO: Transición suave */
+    }
+
+    /* NUEVO: Clase para cuando el contenido se expande */
+    .main-content.expandido {
+      margin-left: 0;
+    }
+
   </style>
 </head>
 <body>
 
   <div id="app" v-cloak>
     
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4 rounded">
-      <div class="container-fluid">
-        <a class="navbar-brand" href="#">🌳 App Floema RNME</a>
-        <div class="d-flex text-white">
-          <span class="me-3">Usuario: <?= userEmail || 'Modo Desarrollo' ?></span>
+    <div v-if="vistaActual === 'Cargando'" class="d-flex justify-content-center align-items-center" style="height: 100vh; width: 100vw; position: fixed; background: white; z-index: 9999;">
+      <div class="text-center">
+        <div class="spinner-border mb-3" role="status" style="width: 3rem; height: 3rem; color: var(--floema-green-dark);"></div>
+        <h4>Inicializando Floema RNME...</h4>
+      </div>
+    </div>
+
+    <nav class="sidebar" v-if="vistaActual !== 'Cargando'" :class="{ 'colapsado': !menuPrincipalAbierto }">
+      <div class="sidebar-logo">
+        <img src="https://i.postimg.cc/851FknCQ/logo-Floema.png" alt="Logo Floema RNME">
+        
+        <div class="mt-3 text-center">
+          <div class="fw-bold" style="color: #A4D65E; font-size: 0.95rem; letter-spacing: 0.5px; text-shadow: 0px 1px 2px rgba(0,0,0,0.15);">
+            Gestión de Trámites
+          </div>
+          <div class="mt-2">
+            <span class="badge shadow-sm" style="background-color: #8BC34A; color: white; font-size: 0.70rem; padding: 4px 10px; border: 1px solid rgba(255,255,255,0.3); border-radius: 4px;">
+              🛡️ ADMIN
+            </span>
+          </div>
         </div>
+      </div>
+      
+      <div class="sidebar-nav">
+        <div class="px-4 mt-2 mb-2 text-uppercase small text-muted fw-bold" style="font-size: 0.75rem; letter-spacing: 1px;">Operación</div>
+        <a class="sidebar-link cursor-pointer" :class="{ 'active': vistaActual === 'MenuPrincipal' }" @click="cambiarVista('MenuPrincipal')">📊 Dashboard</a>
+        <a class="sidebar-link cursor-pointer" :class="{ 'active': vistaActual === 'Evaluacion' }" @click="cambiarVista('Evaluacion')">📝 Iniciar Evaluación</a>
+        
+        <div class="px-4 mt-4 mb-2 text-uppercase small text-muted fw-bold" style="font-size: 0.75rem; letter-spacing: 1px;">Configuración</div>
+        <a class="sidebar-link cursor-pointer" :class="{ 'active': vistaActual === 'Admin' }" @click="cambiarVista('Admin')">⚙️ Diseñar Formularios</a>
+        <a class="sidebar-link cursor-pointer" :class="{ 'active': vistaActual === 'Catalogos' }" @click="cambiarVista('Catalogos')">📚 Definir Datos</a>
       </div>
     </nav>
 
-    <div class="app-container">
+    <main class="main-content" v-if="vistaActual !== 'Cargando'" :class="{ 'expandido': !menuPrincipalAbierto }">
       
-      <div v-if="vistaActual === 'Cargando'" class="text-center py-5">
-        <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;"></div>
-        <h4>Inicializando Sistema...</h4>
-      </div>
+      <header class="top-header">
+        <div class="d-flex align-items-center gap-3">
+          <button class="btn btn-light border-0 shadow-sm px-2 py-1 fs-5 text-muted" 
+                  @click="menuPrincipalAbierto = !menuPrincipalAbierto" 
+                  title="Ocultar/Mostrar Menú Lateral">
+            ☰
+          </button>
+          <h3 class="m-0 fw-bold" style="color: var(--floema-green-dark);">{{ tituloVista }}</h3>
+        </div>
+        <div class="d-flex align-items-center bg-light px-3 py-2 border rounded shadow-sm">
+          <span class="small text-muted me-2">👤</span>
+          <span class="fw-bold small"><?= typeof userEmail !== 'undefined' ? userEmail : 'Modo Desarrollo' ?></span>
+        </div>
+      </header>
+      </header>
 
-      <div v-if="vistaActual === 'MenuPrincipal'">
-        <h2 class="mb-4">Bienvenido al Gestor de Evaluaciones</h2>
-        <div class="row">
-          <div class="col-md-4 mb-3">
-            <div class="card h-100 shadow-sm border-0 bg-light">
-              <div class="card-body text-center">
-                <h5 class="card-title">📝 Iniciar Evaluación</h5>
-                <p class="card-text text-muted">Ejecutar un trámite dinámico.</p>
-                <button class="btn btn-primary" @click="cambiarVista('Evaluacion')">Comenzar</button>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-4 mb-3">
-            <div class="card h-100 shadow-sm border-0 bg-light">
-              <div class="card-body text-center">
-                <h5 class="card-title">⚙️ Administrar Motor EAV</h5>
-                <p class="card-text text-muted">Configurar trámites y plantillas.</p>
-                <button class="btn btn-dark" @click="cambiarVista('Admin')">Configurar Formularios</button>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-4 mb-3">
-            <div class="card h-100 shadow-sm border-0 bg-light">
-              <div class="card-body text-center">
-                <h5 class="card-title">📚 Diccionario de Datos</h5>
-                <p class="card-text text-muted">CRUD de catálogos y variables.</p>
-                <button class="btn btn-info text-white" @click="cambiarVista('Catalogos')">Gestionar Catálogos</button>
+      <div class="app-container">
+        
+        <div v-if="vistaActual === 'MenuPrincipal'">
+          <div class="row">
+            <div class="col-md-12 mb-4">
+              <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="card-body p-5 bg-white">
+                  <h2 class="mb-3 text-dark">Bienvenido a Floema RNME</h2>
+                  <p class="text-muted fs-5">Utiliza el menú lateral para gestionar catálogos, configurar plantillas dinámicas o iniciar una nueva evaluación técnica.</p>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <div v-if="vistaActual === 'Admin'">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-          <h2>⚙️ Constructor Dinámico de Evaluaciones</h2>
-          <button class="btn btn-outline-secondary" @click="cambiarVista('MenuPrincipal')">Volver al Menú</button>
-        </div>
-
-        <div class="row">
-          <div class="col-md-4">
-            <div class="card shadow-sm mb-3">
-              <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Trámites</h5>
-                <button class="btn btn-sm btn-light" @click="crearTramiteMock">+ Nuevo</button>
-              </div>
-              <ul class="list-group list-group-flush">
-                <li v-if="tramitesLocales.length === 0" class="list-group-item text-muted small">
-                  No hay trámites. Haz clic en + Nuevo.
-                </li>
-                <li class="list-group-item list-group-item-action cursor-pointer" 
-                    v-for="tramite in tramitesLocales" :key="tramite.id_tramite"
-                    @click="seleccionarTramite(tramite)"
-                    :class="{ 'active': tramiteSeleccionado?.id_tramite === tramite.id_tramite }">
-                  {{ tramite.nombre_tramite }}
-                </li>
-              </ul>
-            </div>
+        <div v-if="vistaActual === 'Evaluacion'">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="mb-0 text-secondary">📝 Gestión de Evaluaciones</h4>
           </div>
 
-          <div class="col-md-8" v-if="tramiteSeleccionado">
-            <div class="card shadow-sm border-primary">
-              <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Plantilla: {{ tramiteSeleccionado.nombre_tramite }}</h5>
-              </div>
-              <div class="card-body">
-                <p class="text-muted small mb-3">Añade las preguntas dinámicas. El sistema creará los inputs automáticamente.</p>
+          <div class="row">
+            <div :class="menuTramitesAbierto ? 'col-md-4' : 'col-md-auto'" style="transition: all 0.2s ease-in-out;">
+              <div class="card shadow-sm mb-3 border-0">
                 
-                <div v-for="(criterio, index) in criteriosBorrador" :key="index" class="p-3 mb-3 border rounded bg-light">
-                  <div class="row g-2 align-items-end">
-                    <div class="col-md-6">
-                      <label class="form-label small fw-bold">Pregunta / Etiqueta</label>
-                      <input type="text" class="form-control form-control-sm" v-model="criterio.etiqueta_pregunta" placeholder="Ej. ¿Voltaje del equipo?">
-                    </div>
-                    <div class="col-md-4">
-                      <label class="form-label small fw-bold">Tipo de Respuesta</label>
-                      <select class="form-select form-select-sm" v-model="criterio.tipo_input">
-                        <option value="texto">Texto Libre</option>
-                        <option value="numero">Número</option>
-                        <option value="select">Desplegable (Catálogo)</option>
-                        <option value="file">Subir Archivo (Drive)</option>
-                      </select>
-                    </div>
-                    <div class="col-md-2">
-                      <button class="btn btn-sm btn-danger w-100" @click="eliminarCriterio(index)">Eliminar</button>
-                    </div>
+                <div class="card-header text-white d-flex align-items-center cursor-pointer" 
+                     :class="menuTramitesAbierto ? 'justify-content-between' : 'justify-content-center px-3'"
+                     @click="menuTramitesAbierto = !menuTramitesAbierto"
+                     style="background-color: var(--floema-sidebar) !important;"
+                     title="Clic para expandir/colapsar">
+                     
+                  <h5 class="mb-0 text-white text-nowrap" v-if="menuTramitesAbierto">1. Seleccione el Trámite</h5>
+                  
+                  <span class="fs-5" :class="menuTramitesAbierto ? 'ms-3' : ''">☰</span>
+                  
+                </div>
+                
+                <ul class="list-group list-group-flush" v-show="menuTramitesAbierto">
+                  <li v-if="tramitesLocales.length === 0" class="list-group-item text-muted small text-center py-4">
+                    No hay trámites configurados en el sistema.
+                  </li>
+                  <li class="list-group-item list-group-item-action cursor-pointer d-flex justify-content-between align-items-center" 
+                      v-for="tramite in tramitesLocales" :key="tramite.id_tramite" 
+                      @click="seleccionarTramiteParaEvaluacion(tramite)" 
+                      :class="{ 'active': evaluacionActiva.tramite?.id_tramite === tramite.id_tramite }">
+                    <span class="fw-bold text-truncate me-2">{{ tramite.nombre_tramite }}</span>
+                    <span>▶️</span>
+                  </li>
+                </ul>
+                
+              </div>
+            </div>
+
+            <div :class="menuTramitesAbierto ? 'col-md-8' : 'col'" v-if="evaluacionActiva.tramite" style="transition: all 0.2s ease-in-out;">
+              
+              <div v-if="evaluacionActiva.cargando" class="text-center py-5">
+                <div class="spinner-border" style="color: var(--floema-primary);" role="status"></div>
+                <p class="mt-2 text-muted fw-bold">Cargando información...</p>
+              </div>
+
+              <div class="card shadow-sm border-0" v-else-if="modoEvaluacion === 'lista'">
+                <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center" style="background-color: var(--floema-sidebar) !important;">
+                  <h5 class="mb-0 text-white">Registros: {{ evaluacionActiva.tramite.nombre_tramite }}</h5>
+                  <button class="btn btn-sm btn-light text-dark fw-bold shadow-sm" @click="abrirFormularioNuevaEvaluacion">
+                    + Nueva Evaluación
+                  </button>
+                </div>
+                
+                <div class="card-body p-0">
+                  <div class="table-responsive" style="max-height: calc(100vh - 280px); overflow-y: auto;">
+                    <table class="table table-hover table-sm mb-0 align-middle">
+                      <thead class="table-light sticky-top shadow-sm">
+                        <tr>
+                          <th class="ps-4">Expediente</th>
+                          <th>Fecha</th>
+                          <th>Evaluador</th>
+                          <th v-for="col in columnasDinamicasTabla" :key="col.id_criterio" style="color: var(--floema-primary);">
+                            {{ col.etiqueta_pregunta }}
+                          </th>
+                          <th>Puntuación</th>
+                          <th class="text-end pe-4">Acciones</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr v-for="ev in listaEvaluaciones" :key="ev.id_evaluacion">
+                          <td class="fw-bold ps-4 text-dark">{{ ev.id_expediente }}</td>
+                          <td>{{ formatearFecha(ev.fecha_evaluacion) }}</td>
+                          <td class="small text-muted">{{ ev.email_evaluador }}</td>
+                          
+                          <td v-for="col in columnasDinamicasTabla" :key="col.id_criterio">
+                             <span class="text-secondary fw-bold">{{ ev.respuestas && ev.respuestas[col.id_criterio] ? ev.respuestas[col.id_criterio] : '-' }}</span>
+                          </td>
+
+                          <td>
+                            <span class="badge bg-info shadow-sm text-dark">{{ ev.puntuacion_total }} pts</span>
+                          </td>
+                          <td class="text-end pe-4">
+                            <button class="btn btn-sm btn-outline-info" :title="ev.observaciones ? 'Obs: ' + ev.observaciones : 'Ver Detalle'">👁️</button>
+                          </td>
+                        </tr>
+                        <tr v-if="listaEvaluaciones.length === 0">
+                          <td :colspan="5 + columnasDinamicasTabla.length" class="text-center py-5 text-muted">
+                            <div class="fs-1 mb-2">📭</div>
+                            No hay evaluaciones registradas para este trámite aún.
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card shadow-sm border-secondary" v-else-if="modoEvaluacion === 'formulario'">
+                <div class="card-header bg-white border-bottom">
+                  <h5 class="mb-0" style="color: var(--floema-primary);">Completar Datos: {{ evaluacionActiva.tramite.nombre_tramite }}</h5>
+                </div>
+                
+                <div class="card-body">
+                  <div v-if="evaluacionActiva.criterios.length === 0" class="alert alert-warning">
+                    ⚠️ Este trámite aún no tiene preguntas configuradas. Vaya a "Diseñar Formularios" para agregarlas.
+                    <br><br>
+                    <button class="btn btn-sm btn-outline-secondary" @click="modoEvaluacion = 'lista'">Volver</button>
+                  </div>
+
+                  <form @submit.prevent="guardarEvaluacion" v-else>
                     
-                    <div class="col-md-12 mt-2" v-if="criterio.tipo_input === 'select'">
-                      <label class="form-label small text-primary fw-bold">Vincular a Categoría de Catálogo</label>
-                      <select class="form-select form-select-sm border-primary" v-model="criterio.opciones_json">
-                        <option value="">-- Seleccione una Categoría --</option>
-                        <option v-for="cat in categoriasCatalogoUnicas" :key="cat" :value="cat">{{ cat }}</option>
-                      </select>
-                      <div v-if="categoriasCatalogoUnicas.length === 0" class="form-text text-danger small">
-                        No hay catálogos cargados en la base de datos (APP_CATALOGOS).
+                    <div class="row g-3 mb-4 p-3 bg-light border rounded shadow-sm">
+                      <div class="col-md-4">
+                        <label class="form-label fw-bold text-dark small">Expediente <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control border-secondary" v-model="evaluacionActiva.id_expediente" placeholder="Ej. DNLCAT-2026-001" required>
+                      </div>
+                      <div class="col-md-8">
+                        <label class="form-label fw-bold text-dark small">Observaciones Generales</label>
+                        <input type="text" class="form-control" v-model="evaluacionActiva.observaciones" placeholder="Anotaciones sobre este expediente...">
+                      </div>
+                    </div>
+
+                    <ul class="nav nav-tabs mb-4" v-if="tabsEvaluacionConfigurados.length > 1">
+                      <li class="nav-item" v-for="tab in tabsEvaluacionConfigurados" :key="tab.nombre">
+                        <button class="nav-link fw-bold" :class="{ 'active': tabActivoEvaluacion === tab.nombre }" 
+                                @click="tabActivoEvaluacion = tab.nombre" type="button" 
+                                :style="tabActivoEvaluacion === tab.nombre ? 'color: var(--floema-primary); border-bottom-color: transparent;' : 'color: #6c757d;'">
+                          {{ tab.nombre }}
+                        </button>
+                      </li>
+                    </ul>
+
+                    <template v-for="tab in tabsEvaluacionConfigurados" :key="tab.nombre">
+                      <div class="row g-4" v-show="tabActivoEvaluacion === tab.nombre">
+                        
+                        <div v-for="(crit, index) in tab.campos" :key="index" :class="crit.ancho || 'col-md-12'">
+                          
+                          <div v-if="crit.tipo_input === 'titulo'" class="mt-2 mb-2">
+                            <h6 class="fw-bold text-uppercase border-bottom pb-2" style="color: var(--floema-sidebar); letter-spacing: 0.5px;">
+                              {{ crit.etiqueta_pregunta }}
+                            </h6>
+                          </div>
+
+                          <template v-else>
+                            <label class="form-label fw-bold text-dark small">
+                              {{ crit.etiqueta_pregunta }}
+                            </label>
+                            
+                            <input v-if="crit.tipo_input === 'texto'" type="text" class="form-control bg-light" 
+                                   v-model="evaluacionActiva.respuestas[crit.id_criterio].valor" placeholder="Escriba aquí...">
+                            
+                            <input v-else-if="crit.tipo_input === 'numero'" type="number" class="form-control bg-light" 
+                                   v-model="evaluacionActiva.respuestas[crit.id_criterio].valor" placeholder="0">
+                            
+                            <select v-else-if="crit.tipo_input === 'select'" class="form-select bg-light border-primary" 
+                                    v-model="evaluacionActiva.respuestas[crit.id_criterio].valor">
+                              <option value="">-- Seleccione una opción --</option>
+                              <option v-for="opcion in obtenerOpcionesCatalogo(crit.opciones_json)" :key="opcion" :value="opcion">{{ opcion }}</option>
+                            </select>
+                            
+                            <div v-else-if="crit.tipo_input === 'file'" class="input-group">
+                              <span class="input-group-text bg-white">🔗</span>
+                              <input type="url" class="form-control bg-light" v-model="evaluacionActiva.respuestas[crit.id_criterio].valor" placeholder="Pegue enlace de Drive...">
+                            </div>
+                          </template>
+
+                        </div>
+
+                      </div>
+                    </template>
+                    
+                    <hr class="my-4">
+                    <div class="d-flex justify-content-end">
+                      <button type="button" class="btn btn-outline-secondary fw-bold me-2" @click="modoEvaluacion = 'lista'">Cancelar</button>
+                      <button type="submit" class="btn btn-success fw-bold px-5">💾 Registrar Evaluación</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+
+            </div>
+            
+            <div :class="menuTramitesAbierto ? 'col-md-8' : 'col'" v-else style="transition: all 0.2s ease-in-out;">
+              <div class="alert alert-info border-0 shadow-sm fs-5 text-center py-5">
+                ⬅️ Seleccione un Trámite del panel izquierdo para revisar su historial o iniciar una nueva evaluación.
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <div v-if="vistaActual === 'Admin'">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="mb-0 text-secondary"></h4>
+          </div>
+
+          <div class="row">
+            <div class="col-md-4">
+              <div class="card shadow-sm mb-3 border-0">
+                <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                  <h5 class="mb-0 text-white">Diseño de Plantillas</h5>
+                  <button class="btn btn-sm btn-light text-dark fw-bold" @click="crearNuevoTramite">+ Nuevo</button>
+                </div>
+                <ul class="list-group list-group-flush">
+                  <li v-if="tramitesLocales.length === 0" class="list-group-item text-muted small text-center py-4">
+                    No hay trámites registrados.<br>Haz clic en <b>+ Nuevo</b>.
+                  </li>
+                  <li class="list-group-item list-group-item-action cursor-pointer d-flex justify-content-between align-items-center" 
+                      v-for="tramite in tramitesLocales" :key="tramite.id_tramite" 
+                      @click="seleccionarTramite(tramite)" 
+                      :class="{ 'active': tramiteSeleccionado?.id_tramite === tramite.id_tramite }">
+                    <span class="text-truncate me-2">{{ tramite.nombre_tramite }}</span>
+                    <button class="btn btn-sm" 
+                            :class="tramiteSeleccionado?.id_tramite === tramite.id_tramite ? 'btn-outline-light' : 'btn-outline-danger'" 
+                            @click.stop="eliminarTramite(tramite)" title="Eliminar Trámite">
+                      🗑️
+                    </button>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="col-md-8" v-if="tramiteSeleccionado">
+              <div class="card shadow-sm border-primary">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                  <h5 class="mb-0">Plantilla: {{ tramiteSeleccionado.nombre_tramite }}</h5>
+                </div>
+                
+                <div class="card-body">
+                  <p class="text-muted small mb-3">Añade las preguntas dinámicas. El sistema creará los inputs automáticamente.</p>
+                  
+                  <div v-for="(criterio, index) in criteriosBorrador" :key="index" 
+                       class="mb-3 border rounded shadow-sm overflow-hidden bg-light"
+                       draggable="true"
+                       @dragstart="arrastrarInicio(index, $event)"
+                       @dragend="arrastrarFin($event)"
+                       @dragover.prevent="arrastrarSobre($event)"
+                       @dragleave="arrastrarFuera($event)"
+                       @drop="arrastrarSoltar(index, $event)">
+                    
+                    <div class="d-flex justify-content-between align-items-center p-3"
+                         :class="criterio._expanded ? 'bg-white border-bottom' : ''">
+                      
+                      <div class="d-flex align-items-center gap-3 overflow-hidden">
+                        <span class="cursor-move text-muted fs-5" title="Arrastrar para reordenar">⠿</span>
+                        <span class="badge bg-secondary rounded-pill px-3">{{ index + 1 }}</span>
+                        <span class="fw-bold text-dark text-truncate cursor-pointer" style="max-width: 300px;" @click="criterio._expanded = !criterio._expanded">
+                          {{ criterio.etiqueta_pregunta || 'Nueva Pregunta...' }}
+                        </span>
+                        <span class="badge" style="background-color: rgba(0, 151, 178, 0.1); color: var(--floema-primary);">
+                          {{ criterio.tipo_input }}
+                        </span>
+                      </div>
+
+                      <div class="d-flex align-items-center gap-2">
+                        <button class="btn btn-sm btn-outline-danger" @click.stop="eliminarCriterio(index)" title="Eliminar">🗑️</button>
+                        <button class="btn btn-sm btn-light text-muted border" @click="criterio._expanded = !criterio._expanded">
+                          {{ criterio._expanded ? '🔼' : '🔽' }}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div class="p-3 bg-white" v-show="criterio._expanded">
+                      <div class="row g-3">
+                        <div class="col-md-4">
+                          <label class="form-label small fw-bold text-muted">Etiqueta / Título</label>
+                          <input type="text" class="form-control" v-model="criterio.etiqueta_pregunta" placeholder="Ej. Datos Generales">
+                        </div>
+                        <div class="col-md-4">
+                          <label class="form-label small fw-bold text-muted">Tipo de Elemento</label>
+                          <select class="form-select border-primary" v-model="criterio.tipo_input">
+                            <optgroup label="Estructura Visual">
+                              <option value="tab">🗂️ Pestaña (Agrupador)</option>
+                              <option value="titulo">📌 Título de Sección</option>
+                            </optgroup>
+                            <optgroup label="Campos de Entrada">
+                              <option value="texto">🔤 Texto Libre</option>
+                              <option value="numero">🔢 Número</option>
+                              <option value="select">🔽 Desplegable (Catálogo)</option>
+                              <option value="file">🔗 Subir Archivo (Drive)</option>
+                            </optgroup>
+                          </select>
+                        </div>
+                        
+                        <div class="col-md-4" v-if="criterio.tipo_input !== 'tab'">
+                          <label class="form-label small fw-bold text-muted">Ancho de Columna</label>
+                          <select class="form-select" v-model="criterio.ancho">
+                            <option value="col-md-12">Fila Completa (100%)</option>
+                            <option value="col-md-6">Mitad (50%)</option>
+                            <option value="col-md-4">Un Tercio (33%)</option>
+                            <option value="col-md-3">Un Cuarto (25%)</option>
+                          </select>
+                        </div>
+                        
+                        <div class="col-md-12" v-if="criterio.tipo_input === 'select'">
+                          <div class="p-3 rounded" style="background-color: rgba(0, 151, 178, 0.05); border: 1px dashed var(--floema-primary);">
+                            <label class="form-label small fw-bold" style="color: var(--floema-primary)">Vincular a Categoría de Catálogo</label>
+                            <select class="form-select border-primary shadow-sm" v-model="criterio.opciones_json">
+                              <option value="">-- Seleccione una Categoría --</option>
+                              <option v-for="cat in categoriasCatalogoUnicas" :key="cat" :value="cat">{{ cat }}</option>
+                            </select>
+                          </div>
+                        </div>
+
+                        <div class="col-md-12 mt-3" v-if="criterio.tipo_input !== 'tab' && criterio.tipo_input !== 'titulo'">
+                          <div class="form-check form-switch p-3 rounded border bg-light">
+                            <input class="form-check-input ms-0 me-2" type="checkbox" v-model="criterio.mostrar_en_tabla" :id="'chk_mostrar_' + index" style="cursor: pointer;">
+                            <label class="form-check-label small fw-bold text-dark cursor-pointer" :for="'chk_mostrar_' + index">
+                              👁️ Mostrar esta respuesta como columna en la tabla del historial de evaluaciones.
+                            </label>
+                          </div>
+                        </div>
+
                       </div>
                     </div>
                   </div>
-                </div>
 
-                <button class="btn btn-outline-primary btn-sm mb-3" @click="agregarCriterio">
-                  + Agregar Nueva Pregunta
-                </button>
+                  <div class="d-flex gap-2 mt-4">
+                    <button class="btn btn-outline-primary btn-sm fw-bold" @click="agregarCriterio">
+                      ➕ Agregar Nueva Pregunta
+                    </button>
+                    <button class="btn btn-outline-info btn-sm fw-bold" @click="abrirModalImportar" style="color: var(--floema-primary); border-color: var(--floema-primary);">
+                      📋 Importar de otra Plantilla
+                    </button>
+                  </div>
 
-              </div>
-              <div class="card-footer text-end">
-                <button class="btn btn-success" @click="guardarConfiguracionEAV">💾 Guardar Plantilla</button>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-8" v-else>
-            <div class="alert alert-info">⬅️ Selecciona o crea un trámite a la izquierda para empezar a configurar sus preguntas.</div>
-          </div>
-        </div>
-      </div>
-
-      <div v-if="vistaActual === 'Catalogos'">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-          <h2>📚 Gestión de Catálogos (Diccionario)</h2>
-          <button class="btn btn-outline-secondary" @click="cambiarVista('MenuPrincipal')">Volver al Menú</button>
-        </div>
-
-        <div class="row">
-          <div class="col-md-4 mb-3">
-            <div class="card shadow-sm border-info">
-              <div class="card-header bg-info text-white">
-                <h5 class="mb-0">{{ catalogoEnEdicion.id_catalogo ? 'Editar Registro' : 'Nuevo Registro' }}</h5>
-              </div>
-              <div class="card-body">
-                <div class="mb-3">
-                  <label class="form-label small fw-bold">Categoría (Agrupador)</label>
-                  <input type="text" class="form-control" v-model="catalogoEnEdicion.categoria" placeholder="Ej. TIPO_DOCUMENTO" list="categoriasSugeridas">
-                  <datalist id="categoriasSugeridas">
-                    <option v-for="cat in categoriasCatalogoUnicas" :key="cat" :value="cat"></option>
-                  </datalist>
-                </div>
-                <div class="mb-3">
-                  <label class="form-label small fw-bold">Valor (Opciones a mostrar)</label>
-                  <input type="text" class="form-control" v-model="catalogoEnEdicion.valor" placeholder="Ej. Cédula de Identidad">
-                </div>
-                <div class="mb-3">
-                  <label class="form-label small fw-bold">Estado</label>
-                  <select class="form-select" v-model="catalogoEnEdicion.estado">
-                    <option value="Activo">Activo</option>
-                    <option value="Inactivo">Inactivo</option>
-                  </select>
                 </div>
                 
-                <div class="alert alert-warning py-2 small" v-if="catalogoEnEdicion.origen === 'Bitacora'">
-                  ⚠️ Este registro proviene de una importación (Bitacora). Modificarlo puede afectar datos históricos.
+                <div class="card-footer text-end bg-light border-top">
+                  <button class="btn btn-success fw-bold px-4" @click="guardarConfiguracionEAV">💾 Guardar Plantilla</button>
                 </div>
+              </div>
+            </div>
+            
+            <div class="col-md-8" v-else>
+              <div class="alert alert-info border-0 shadow-sm">⬅️ Selecciona o crea un trámite a la izquierda para empezar a configurar sus preguntas.</div>
+            </div>
+          </div>
 
-                <div class="d-flex justify-content-between">
-                  <button class="btn btn-secondary btn-sm" @click="limpiarFormularioCatalogo" v-if="catalogoEnEdicion.id_catalogo">Cancelar</button>
-                  <button class="btn btn-success w-100 ms-2" @click="guardarItemCatalogo">💾 Guardar</button>
+          <div class="modal fade" id="modalImportar" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+              <div class="modal-content border-0 shadow-lg" style="border-radius: 12px; overflow: hidden;">
+                <div class="modal-header bg-light border-bottom-0">
+                  <h5 class="modal-title fw-bold" style="color: var(--floema-primary);">📋 Importar Preguntas</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                  
+                  <div class="mb-4">
+                    <label class="form-label fw-bold small text-muted">1. Selecciona el Trámite de Origen:</label>
+                    <select class="form-select border-secondary shadow-sm" v-model="importTramiteSeleccionado" @change="cargarPreguntasAImportar">
+                      <option value="">-- Elija un trámite para ver sus preguntas --</option>
+                      <option v-for="t in tramitesLocales.filter(x => x.id_tramite !== tramiteSeleccionado?.id_tramite)" :value="t.id_tramite" :key="t.id_tramite">
+                        {{ t.nombre_tramite }}
+                      </option>
+                    </select>
+                  </div>
+
+                  <div v-if="cargandoImportacion" class="text-center py-4">
+                    <div class="spinner-border mb-2" style="color: var(--floema-primary);" role="status"></div>
+                    <p class="text-muted small">Cargando formulario de origen...</p>
+                  </div>
+
+                  <div v-if="!cargandoImportacion && preguntasAImportar.length > 0">
+                    <label class="form-label fw-bold small text-muted">2. Selecciona las preguntas a copiar:</label>
+                    <div class="list-group shadow-sm">
+                      <label class="list-group-item d-flex gap-3 align-items-center cursor-pointer list-group-item-action" v-for="(preg, idx) in preguntasAImportar" :key="idx">
+                        <input class="form-check-input flex-shrink-0 fs-5" type="checkbox" v-model="preg.seleccionada">
+                        <div class="d-flex flex-column">
+                          <span class="fw-bold text-dark">{{ preg.etiqueta_pregunta || 'Sin título' }}</span>
+                          <span class="small text-muted">Tipo: {{ preg.tipo_input }} <span v-if="preg.tipo_input === 'select'">({{ preg.opciones_json }})</span></span>
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+
+                  <div v-if="!cargandoImportacion && importTramiteSeleccionado && preguntasAImportar.length === 0" class="alert alert-warning border-0 shadow-sm mt-3">
+                    ⚠️ Este trámite no tiene preguntas configuradas o la plantilla está vacía.
+                  </div>
+
+                </div>
+                <div class="modal-footer bg-light border-top-0">
+                  <button type="button" class="btn btn-outline-secondary fw-bold" data-bs-dismiss="modal">Cancelar</button>
+                  <button type="button" class="btn btn-primary fw-bold" @click="ejecutarImportacion" :disabled="preguntasAImportar.filter(p => p.seleccionada).length === 0">
+                    📥 Importar Seleccionadas
+                  </button>
                 </div>
               </div>
             </div>
           </div>
+          </div>
 
-          <div class="col-md-8">
-            <div class="card shadow-sm">
-              <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Registros Existentes</h5>
-                <span class="badge bg-light text-dark">Total: {{ catalogosLocales.length }}</span>
+        <div v-if="vistaActual === 'Catalogos'">
+          <div class="row">
+            
+            <div class="col-md-4 mb-3">
+              <div class="card shadow-sm border-0" 
+                   :style="catalogoEnEdicion.id_catalogo ? 'border-top: 4px solid var(--floema-accent) !important;' : 'border-top: 4px solid var(--floema-secondary) !important;'">
+                <div class="card-header bg-white">
+                  <h5 class="mb-0 fw-bold" :style="catalogoEnEdicion.id_catalogo ? 'color: var(--floema-accent) !important;' : 'color: var(--floema-secondary) !important;'">
+                    {{ catalogoEnEdicion.id_catalogo ? '✏️ Editar Registro' : '✨ Nuevo Registro' }}
+                  </h5>
+                </div>
+                <div class="card-body">
+                  <p class="small text-muted mb-4">
+                    {{ catalogoEnEdicion.id_catalogo ? 'Modificando un registro existente de Floema.' : 'Agrega una nueva variable al diccionario del sistema.' }}
+                  </p>
+
+                  <div class="mb-3">
+                    <label class="form-label small fw-bold text-dark">Categoría (Agrupador)</label>
+                    <input type="text" class="form-control" v-model="catalogoEnEdicion.categoria" placeholder="Ej. TIPO_DOCUMENTO" list="categoriasSugeridas">
+                    <datalist id="categoriasSugeridas">
+                      <option v-for="cat in categoriasCatalogoUnicas" :key="cat" :value="cat"></option>
+                    </datalist>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label small fw-bold text-dark">Valor (Opción a mostrar)</label>
+                    <input type="text" class="form-control" v-model="catalogoEnEdicion.valor" placeholder="Ej. Cédula de Identidad">
+                  </div>
+                  <div class="mb-4">
+                    <label class="form-label small fw-bold text-dark">Estado</label>
+                    <select class="form-select" v-model="catalogoEnEdicion.estado">
+                      <option value="Activo">Activo</option>
+                      <option value="Inactivo">Inactivo</option>
+                    </select>
+                  </div>
+                  
+                  <div class="d-flex justify-content-between gap-2">
+                    <button class="btn btn-outline-secondary w-50" @click="limpiarFormularioCatalogo" v-if="catalogoEnEdicion.id_catalogo">Cancelar</button>
+                    <button class="btn btn-primary w-100" @click="guardarItemCatalogo">
+                      {{ catalogoEnEdicion.id_catalogo ? '💾 Actualizar' : '💾 Guardar Nuevo' }}
+                    </button>
+                  </div>
+                </div>
               </div>
-              <div class="card-body p-0">
-                <div class="p-3 bg-light border-bottom">
-                  <input type="text" class="form-control" v-model="filtroCatalogo" placeholder="🔍 Buscar por Categoría o Valor...">
+            </div>
+
+            <div class="col-md-8">
+              <div class="card shadow-sm border-0">
+                <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center" style="background-color: var(--floema-sidebar) !important;">
+                  <h5 class="mb-0 text-white">Registros Existentes</h5>
+                  <span class="badge bg-light text-dark rounded-pill px-3 shadow-sm">Total: {{ catalogosFiltrados.length }}</span>
                 </div>
                 
-                <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
-                  <table class="table table-hover table-sm mb-0 align-middle">
-                    <thead class="table-light sticky-top">
-                      <tr>
-                        <th>Categoría</th>
-                        <th>Valor</th>
-                        <th>Origen</th>
-                        <th>Estado</th>
-                        <th class="text-end">Acciones</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr v-for="item in catalogosFiltrados" :key="item.id_catalogo" :class="{'table-warning': item.origen === 'Bitacora'}">
-                        <td class="fw-bold">{{ item.categoria }}</td>
-                        <td>{{ item.valor }}</td>
-                        <td><span class="badge bg-secondary">{{ item.origen || 'Floema' }}</span></td>
-                        <td>
-                          <span :class="item.estado === 'Activo' ? 'text-success' : 'text-danger'">●</span> {{ item.estado }}
-                        </td>
-                        <td class="text-end">
-                          <button class="btn btn-sm btn-outline-primary me-1" @click="editarItemCatalogo(item)">✏️</button>
-                          <button class="btn btn-sm btn-outline-danger" @click="eliminarItemCatalogo(item)" :disabled="item.origen === 'Bitacora'">🗑️</button>
-                        </td>
-                      </tr>
-                      <tr v-if="catalogosFiltrados.length === 0">
-                        <td colspan="5" class="text-center py-4 text-muted">No se encontraron registros.</td>
-                      </tr>
-                    </tbody>
-                  </table>
+                <div class="card-body p-0">
+                  <div class="p-3 bg-light border-bottom">
+                    <div class="row g-2">
+                      <div class="col-md-4">
+                        <select class="form-select border-secondary shadow-sm" v-model="filtroOrigen">
+                          <option value="Todos">🌍 Todos los Orígenes</option>
+                          <option value="Floema">🌱 Solo Floema</option>
+                          <option value="Bitacora">🏛️ Solo Bitácora</option>
+                        </select>
+                      </div>
+                      <div class="col-md-4">
+                        <select class="form-select border-secondary shadow-sm" v-model="filtroCategoria">
+                          <option value="">📁 Todas las Categorías</option>
+                          <option v-for="cat in categoriasCatalogoUnicas" :key="cat" :value="cat">{{ cat }}</option>
+                        </select>
+                      </div>
+                      <div class="col-md-4">
+                        <input type="text" class="form-control border-secondary shadow-sm" v-model="filtroCatalogo" placeholder="🔍 Buscar texto o valor...">
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="table-responsive" style="max-height: calc(100vh - 380px); overflow-y: auto;">
+                    <table class="table table-hover table-sm mb-0 align-middle">
+                      <thead class="table-light sticky-top shadow-sm" style="z-index: 10;">
+                        <tr>
+                          <th class="ps-4">Categoría</th>
+                          <th>Valor</th>
+                          <th>Origen</th>
+                          <th>Estado</th>
+                          <th class="text-end pe-4">Acciones</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr v-for="item in catalogosFiltrados" :key="item.id_catalogo">
+                          <td class="fw-bold ps-4 text-dark">{{ item.categoria }}</td>
+                          <td>{{ item.valor }}</td>
+                          <td>
+                            <span class="badge" :class="item.origen === 'Bitacora' ? 'bg-secondary' : 'bg-info text-dark'" 
+                                  :style="item.origen !== 'Bitacora' ? 'background-color: rgba(0, 151, 178, 0.2) !important; color: var(--floema-secondary) !important;' : ''">
+                              {{ item.origen || 'Floema' }}
+                            </span>
+                          </td>
+                          <td>
+                            <span :class="item.estado === 'Activo' ? 'text-success' : 'text-danger'">●</span> <span class="small">{{ item.estado }}</span>
+                          </td>
+                          <td class="text-end pe-4">
+                            <button class="btn btn-sm btn-outline-primary me-2" @click="editarItemCatalogo(item)" :disabled="item.origen === 'Bitacora'" title="Editar">✏️</button>
+                            <button class="btn btn-sm btn-outline-danger" @click="eliminarItemCatalogo(item)" :disabled="item.origen === 'Bitacora'" title="Eliminar">🗑️</button>
+                          </td>
+                        </tr>
+                        <tr v-if="catalogosFiltrados.length === 0">
+                          <td colspan="5" class="text-center py-5 text-muted">
+                            <div class="fs-1 mb-2">📭</div>
+                            No se encontraron registros para estos filtros.
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               </div>
             </div>
+
           </div>
         </div>
+
       </div>
-      
-    </div>
+    </main>
+
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
@@ -255,9 +836,16 @@
             return;
           }
           Swal.fire({ title: 'Procesando...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+          
           google.script.run
-            .withSuccessHandler((result) => { Swal.close(); resolve(result); })
-            .withFailureHandler((error) => { Swal.fire('Error', error.message, 'error'); reject(error); })
+            .withSuccessHandler((result) => { 
+              // Parche: Un pequeño retraso garantiza que Swal detecte la orden de cierre
+              setTimeout(() => { Swal.close(); resolve(result); }, 150); 
+            })
+            .withFailureHandler((error) => { 
+              Swal.fire('Error', error.message, 'error'); 
+              reject(error); 
+            })
             [serverMethod](...args);
         });
       };
@@ -270,97 +858,283 @@
           // 1. ESTADO GLOBAL
           // ==========================================
           const vistaActual = ref('Cargando');
+
+          const menuPrincipalAbierto = ref(true); // Controla el Sidebar General
+
           const tramitesLocales = ref([]);
-          const catalogosLocales = ref([]); // CORRECCIÓN CRÍTICA: Faltaba esta variable
+          const catalogosLocales = ref([]); 
+
+          // Lógica UI: Título del Top Header Dinámico
+          const tituloVista = computed(() => {
+            switch(vistaActual.value) {
+              case 'MenuPrincipal': return '📊 Panel de Control';
+              case 'Evaluacion': return '📝 Evaluación Documental';
+              case 'Admin': return '⚙️ Formularios';
+              case 'Catalogos': return '📚 Diccionario de Datos';
+              default: return 'Floema RNME';
+            }
+          });
 
           // ==========================================
-          // 2. ESTADO Y LÓGICA: MOTOR EAV (Admin)
+          // 2. LÓGICA ADMIN EAV (PRODUCCIÓN)
           // ==========================================
           const tramiteSeleccionado = ref(null);
           const criteriosBorrador = ref([]);
 
-          const seleccionarTramite = (tramite) => {
-            tramiteSeleccionado.value = tramite;
-            criteriosBorrador.value = []; // Reiniciamos el lienzo
+          // ---> NUEVO: Guarda el Trámite real en la BD
+          const crearNuevoTramite = async () => {
+            const { value: nombreTramite } = await Swal.fire({
+              title: '✨ Nuevo Trámite',
+              input: 'text',
+              inputLabel: 'Descripción o Nombre del Trámite',
+              inputPlaceholder: 'Ej. Homologación de Equipos Psicométricos',
+              showCancelButton: true,
+              confirmButtonColor: 'var(--floema-primary)',
+              cancelButtonColor: '#718096',
+              confirmButtonText: 'Crear Trámite',
+              cancelButtonText: 'Cancelar',
+              inputValidator: (value) => {
+                if (!value || value.trim() === '') {
+                  return 'Debe ingresar una descripción para continuar.';
+                }
+              }
+            });
+
+            if (nombreTramite) {
+              try {
+                // Llamamos al Backend para guardar en CFG_TRAMITES
+                const response = await gasRun('apiGuardarTramite', nombreTramite);
+                if (response && response.success) {
+                  tramitesLocales.value.push(response.tramite); // Lo añadimos a la lista visual
+                  seleccionarTramite(response.tramite); // Lo seleccionamos automáticamente
+                  
+                  Swal.fire({
+                    toast: true, position: 'top-end', icon: 'success', 
+                    title: 'Trámite creado', showConfirmButton: false, timer: 2000
+                  });
+                }
+              } catch (error) {}
+            }
           };
 
-          const crearTramiteMock = () => {
-            const nuevo = { id_tramite: Date.now().toString(), nombre_tramite: 'Nuevo Trámite de Prueba' };
-            tramitesLocales.value.push(nuevo);
-            seleccionarTramite(nuevo);
+          // ---> NUEVO: Elimina el Trámite de la BD
+          const eliminarTramite = async (tramite) => {
+            const confirmacion = await Swal.fire({
+              title: '¿Eliminar Trámite?',
+              text: `Borrarás el trámite "${tramite.nombre_tramite}".`,
+              icon: 'warning',
+              showCancelButton: true,
+              confirmButtonColor: '#d33',
+              cancelButtonColor: '#718096',
+              confirmButtonText: 'Sí, eliminar'
+            });
+
+            if (confirmacion.isConfirmed) {
+              try {
+                await gasRun('apiEliminarTramite', tramite.id_tramite);
+                
+                // Actualizamos la UI reactivamente
+                tramitesLocales.value = tramitesLocales.value.filter(t => t.id_tramite !== tramite.id_tramite);
+                if (tramiteSeleccionado.value?.id_tramite === tramite.id_tramite) {
+                  tramiteSeleccionado.value = null; // Limpiamos el panel derecho
+                  criteriosBorrador.value = [];
+                }
+                
+                Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Trámite eliminado', showConfirmButton: false, timer: 2000 });
+              } catch (error) {}
+            }
+          };
+
+          const seleccionarTramite = async (tramite) => {
+            tramiteSeleccionado.value = tramite;
+            criteriosBorrador.value = []; 
+            
+            try {
+              const response = await gasRun('apiObtenerCriteriosTramite', tramite.id_tramite);
+              if (response && response.criterios && response.criterios.length > 0) {
+                // Volcamos las preguntas guardadas
+                criteriosBorrador.value = response.criterios.map(c => ({
+                  tipo_input: c.tipo_input,
+                  etiqueta_pregunta: c.etiqueta_pregunta,
+                  opciones_json: c.opciones_json || '',
+                  ancho: c.ancho || 'col-md-12', // <--- AQUÍ ESTÁ LA MAGIA QUE FALTABA
+                  _expanded: false
+                }));
+              }
+            } catch (error) {
+              console.error("Error al cargar criterios:", error);
+            }
+          };
+
+          const guardarConfiguracionEAV = async () => {
+            if (!tramiteSeleccionado.value) {
+              return Swal.fire('Error', 'Debe seleccionar un trámite primero.', 'error');
+            }
+            if (criteriosBorrador.value.length === 0) {
+              return Swal.fire('Aviso', 'Debe añadir al menos una pregunta al formulario.', 'warning');
+            }
+
+            // Validación: Ninguna pregunta puede tener el título vacío
+            const hayPreguntasVacias = criteriosBorrador.value.some(c => c.etiqueta_pregunta.trim() === '');
+            if (hayPreguntasVacias) {
+              return Swal.fire('Atención', 'Todas las preguntas deben tener una Etiqueta / Título definido.', 'warning');
+            }
+
+            try {
+              // Preparamos el paquete de datos
+              const payload = {
+                tramite: tramiteSeleccionado.value,
+                criterios: criteriosBorrador.value
+              };
+
+              // Enviamos a producción
+              const response = await gasRun('apiGuardarConfiguracionEAV', payload);
+              
+              if (response && response.success) {
+                Swal.fire({
+                  title: '¡Formulario Guardado!',
+                  text: 'La plantilla dinámica se ha registrado correctamente en producción.',
+                  icon: 'success',
+                  confirmButtonColor: 'var(--floema-secondary)'
+                });
+              }
+            } catch (error) {
+              // gasRun ya maneja el SweetAlert de error
+            }
           };
 
           const agregarCriterio = () => {
-            criteriosBorrador.value.push({ tipo_input: 'texto', etiqueta_pregunta: '', opciones_json: '' });
+            criteriosBorrador.value.push({ 
+              tipo_input: 'texto', 
+              etiqueta_pregunta: '', 
+              opciones_json: '',
+              ancho: 'col-md-12', // Valor por defecto añadido
+              mostrar_en_tabla: false,
+              _expanded: true 
+            });
           };
 
           const eliminarCriterio = (index) => { criteriosBorrador.value.splice(index, 1); };
 
-          const guardarConfiguracionEAV = async () => {
-            if (criteriosBorrador.value.length === 0) return Swal.fire('Aviso', 'Añade al menos una pregunta.', 'warning');
-            Swal.fire('Simulación', 'En producción, esto enviará el JSON al backend para guardarse en CFG_CRITERIOS.', 'success');
+          // ==========================================
+          // DRAG AND DROP (REORDENAMIENTO EAV)
+          // ==========================================
+          const dragIndex = ref(null);
+
+          const arrastrarInicio = (index, event) => {
+            dragIndex.value = index;
+            event.dataTransfer.effectAllowed = 'move';
+            setTimeout(() => event.target.classList.add('drag-ghost'), 0);
+          };
+
+          const arrastrarFin = (event) => {
+            event.target.classList.remove('drag-ghost');
+            dragIndex.value = null;
+          };
+
+          const arrastrarSobre = (event) => {
+            event.currentTarget.classList.add('drag-over');
+          };
+
+          const arrastrarFuera = (event) => {
+            event.currentTarget.classList.remove('drag-over');
+          };
+
+          const arrastrarSoltar = (dropIndex, event) => {
+            event.currentTarget.classList.remove('drag-over');
+            
+            // Si lo soltamos en una posición diferente a la original
+            if (dragIndex.value !== null && dragIndex.value !== dropIndex) {
+              const itemArrastrado = criteriosBorrador.value.splice(dragIndex.value, 1)[0];
+              criteriosBorrador.value.splice(dropIndex, 0, itemArrastrado);
+            }
           };
 
           // ==========================================
           // 3. ESTADO Y LÓGICA: CRUD CATÁLOGOS
           // ==========================================
           const filtroCatalogo = ref('');
-          const catalogoEnEdicion = ref({ categoria: '', valor: '', estado: 'Activo', origen: '' });
+          const filtroCategoria = ref(''); 
+          const filtroOrigen = ref('Floema'); // NUEVO: Valor por defecto "Floema"
+          const catalogoEnEdicion = ref({ categoria: '', valor: '', estado: 'Activo', origen: 'Floema' });
 
-          // Propiedad Computada: Extrae categorías únicas para los selects (ej. Constructor EAV)
           const categoriasCatalogoUnicas = computed(() => {
             if (!catalogosLocales.value || catalogosLocales.value.length === 0) return [];
             const categorias = catalogosLocales.value.map(c => c.categoria);
-            return [...new Set(categorias)].filter(Boolean); 
+            return [...new Set(categorias)].filter(Boolean).sort(); 
           });
 
-          // Propiedad Computada: Filtra la tabla de catálogos en memoria sin llamar al backend
+          // Filtro Combinado: Origen + Categoría + Texto
           const catalogosFiltrados = computed(() => {
-            if (!filtroCatalogo.value) return catalogosLocales.value;
-            const termino = filtroCatalogo.value.toLowerCase();
-            return catalogosLocales.value.filter(item => 
-              (item.categoria && item.categoria.toLowerCase().includes(termino)) ||
-              (item.valor && item.valor.toLowerCase().includes(termino))
-            );
+            return catalogosLocales.value.filter(item => {
+              // 1. Validar Origen (Asumimos "Floema" si viene vacío de la base de datos)
+              const origenReal = item.origen || 'Floema';
+              const coincideOrigen = filtroOrigen.value === 'Todos' || origenReal === filtroOrigen.value;
+
+              // 2. Validar Categoría
+              const coincideCategoria = filtroCategoria.value === '' || item.categoria === filtroCategoria.value;
+              
+              // 3. Validar Texto
+              const termino = filtroCatalogo.value.toLowerCase();
+              const coincideTexto = termino === '' || 
+                (item.categoria && item.categoria.toLowerCase().includes(termino)) ||
+                (item.valor && item.valor.toLowerCase().includes(termino));
+              
+              return coincideOrigen && coincideCategoria && coincideTexto;
+            });
           });
 
           const limpiarFormularioCatalogo = () => {
-            catalogoEnEdicion.value = { categoria: '', valor: '', estado: 'Activo', origen: '' };
+            catalogoEnEdicion.value = { categoria: '', valor: '', estado: 'Activo', origen: 'Floema' };
           };
 
           const editarItemCatalogo = (item) => {
-            catalogoEnEdicion.value = JSON.parse(JSON.stringify(item)); // Clonación para evitar mutación
+            if (item.origen === 'Bitacora') return; // Seguridad Front-end
+            catalogoEnEdicion.value = JSON.parse(JSON.stringify(item)); 
           };
 
           const guardarItemCatalogo = async () => {
             if (!catalogoEnEdicion.value.categoria || !catalogoEnEdicion.value.valor) {
-              return Swal.fire('Error', 'Categoría y Valor son obligatorios', 'warning');
+              return Swal.fire('Error', 'La Categoría y el Valor son obligatorios', 'warning');
+            }
+            
+            // Forzamos el origen visualmente a Floema
+            if (!catalogoEnEdicion.value.origen || catalogoEnEdicion.value.origen === '') {
+              catalogoEnEdicion.value.origen = 'Floema';
             }
 
             try {
               const respuesta = await gasRun('apiGuardarItemCatalogo', catalogoEnEdicion.value);
+              // Protección de entorno: Si la respuesta trae el item lo usamos, si no (modo local), creamos uno virtual
+              const itemGuardado = (respuesta && respuesta.item) ? respuesta.item : { ...catalogoEnEdicion.value, id_catalogo: Date.now().toString() };
               
+              // Refuerzo de seguridad visual
+              itemGuardado.origen = 'Floema';
+
+              // Actualización Reactiva Garantizada de la Tabla
               if (!catalogoEnEdicion.value.id_catalogo) {
-                catalogosLocales.value.push(respuesta.item); // Fue Inserción
+                catalogosLocales.value.unshift(itemGuardado); // Lo coloca al principio de la lista
               } else {
-                const index = catalogosLocales.value.findIndex(c => c.id_catalogo === respuesta.item.id_catalogo);
-                if (index !== -1) catalogosLocales.value[index] = respuesta.item; // Fue Actualización
+                const index = catalogosLocales.value.findIndex(c => c.id_catalogo === itemGuardado.id_catalogo);
+                if (index !== -1) {
+                  catalogosLocales.value.splice(index, 1, itemGuardado); 
+                }
               }
-              
               limpiarFormularioCatalogo();
-              Swal.fire('Éxito', 'Registro guardado correctamente', 'success');
+              Swal.fire({ title: 'Éxito', text: 'Registro guardado correctamente', icon: 'success', timer: 1500, showConfirmButton: false });
             } catch (error) {}
           };
 
           const eliminarItemCatalogo = async (item) => {
-            if (item.origen === 'Bitacora') return; // Protección Front-end estricta
+            if (item.origen === 'Bitacora') return; // Seguridad Front-end
             
             const confirmacion = await Swal.fire({
-              title: '¿Estás seguro?',
-              text: `Eliminarás el valor "${item.valor}" de la categoría "${item.categoria}".`,
+              title: '¿Eliminar registro?',
+              text: `Borrarás "${item.valor}" de la categoría "${item.categoria}". Esta acción no se puede deshacer.`,
               icon: 'warning',
               showCancelButton: true,
               confirmButtonColor: '#d33',
+              cancelButtonColor: '#718096',
               confirmButtonText: 'Sí, eliminar'
             });
 
@@ -368,13 +1142,13 @@
               try {
                 await gasRun('apiEliminarItemCatalogo', item.id_catalogo);
                 catalogosLocales.value = catalogosLocales.value.filter(c => c.id_catalogo !== item.id_catalogo);
-                Swal.fire('Eliminado', 'El registro ha sido borrado.', 'success');
+                Swal.fire({ title: 'Eliminado', text: 'El registro ha sido borrado.', icon: 'success', timer: 1500, showConfirmButton: false });
               } catch (error) {}
             }
           };
 
           // ==========================================
-          // 4. MÉTODOS DE ARRANQUE Y NAVEGACIÓN
+          // 4. ARRANQUE Y NAVEGACIÓN
           // ==========================================
           const cambiarVista = (nuevaVista) => { vistaActual.value = nuevaVista; };
 
@@ -382,24 +1156,245 @@
             try {
               const datos = await gasRun('apiObtenerDatosArranque');
               tramitesLocales.value = datos.tramites || [];
-              catalogosLocales.value = datos.catalogos || []; // CORRECCIÓN CRÍTICA: Carga los datos del backend a la memoria reactiva
+              catalogosLocales.value = datos.catalogos || []; 
               cambiarVista('MenuPrincipal'); 
             } catch (e) {
               cambiarVista('MenuPrincipal'); 
             }
           };
 
+          // ==========================================
+          // LÓGICA DE IMPORTACIÓN DE PREGUNTAS (NUEVO)
+          // ==========================================
+          const importTramiteSeleccionado = ref('');
+          const preguntasAImportar = ref([]);
+          const cargandoImportacion = ref(false);
+
+          const abrirModalImportar = () => {
+            // Reiniciamos los valores cada vez que se abre la ventana
+            importTramiteSeleccionado.value = '';
+            preguntasAImportar.value = [];
+            
+            // Instanciamos y abrimos el Modal de Bootstrap nativamente
+            const modalElement = document.getElementById('modalImportar');
+            const modalInstance = bootstrap.Modal.getOrCreateInstance(modalElement);
+            modalInstance.show();
+          };
+
+          const cargarPreguntasAImportar = async () => {
+            if (!importTramiteSeleccionado.value) {
+              preguntasAImportar.value = [];
+              return;
+            }
+            
+            cargandoImportacion.value = true;
+            try {
+              // Llamamos al backend reutilizando nuestra función de lectura
+              const response = await gasRun('apiObtenerCriteriosTramite', importTramiteSeleccionado.value);
+              if (response && response.criterios) {
+                // Mapeamos las preguntas agregando un flag 'seleccionada' para el checkbox
+                preguntasAImportar.value = response.criterios.map(c => ({
+                  ...c,
+                  seleccionada: false // Inician desmarcadas por defecto
+                }));
+              }
+            } catch (error) {
+               console.error("Error al cargar preguntas para importar:", error);
+               preguntasAImportar.value = [];
+            } finally {
+              cargandoImportacion.value = false;
+            }
+          };
+
+          const ejecutarImportacion = () => {
+            const seleccionadas = preguntasAImportar.value.filter(p => p.seleccionada);
+            if (seleccionadas.length === 0) return;
+
+            seleccionadas.forEach(preg => {
+              criteriosBorrador.value.push({
+                tipo_input: preg.tipo_input,
+                etiqueta_pregunta: preg.etiqueta_pregunta,
+                opciones_json: preg.opciones_json || '',
+                ancho: preg.ancho || 'col-md-12', // <--- AGREGA ESTO AQUÍ TAMBIÉN
+                _expanded: false 
+              });
+            });
+
+            const modalInstance = bootstrap.Modal.getInstance(document.getElementById('modalImportar'));
+            if (modalInstance) modalInstance.hide();
+
+            Swal.fire({
+              toast: true, position: 'top-end', icon: 'success', 
+              title: `${seleccionadas.length} preguntas importadas`, 
+              showConfirmButton: false, timer: 2500
+            });
+          };
+
+          // ==========================================
+          // LÓGICA DE OPERACIÓN (EVALUACIONES)
+          // ==========================================
+          const evaluacionActiva = ref({
+            tramite: null,
+            id_plantilla: null, // NUEVO
+            id_expediente: '',  // NUEVO
+            observaciones: '',  // NUEVO
+            criterios: [],
+            respuestas: {},
+            cargando: false
+          });
+
+          const menuTramitesAbierto = ref(true); // Inicia abierto por defecto
+          
+          const modoEvaluacion = ref('lista'); // Controla si vemos la 'lista' o el 'formulario'
+
+          // ... (debajo de const modoEvaluacion = ref('lista');)
+          const tabActivoEvaluacion = ref('General');
+          
+          const tabsEvaluacionConfigurados = computed(() => {
+            if (!evaluacionActiva.value.criterios) return [];
+            const tabs = [];
+            let currentTab = { nombre: 'General', campos: [] }; // Pestaña por defecto si el usuario no pone ninguna
+            
+            evaluacionActiva.value.criterios.forEach(crit => {
+              if (crit.tipo_input === 'tab') {
+                if (currentTab.campos.length > 0 || tabs.length > 0) tabs.push(currentTab);
+                currentTab = { nombre: crit.etiqueta_pregunta, campos: [] };
+              } else {
+                currentTab.campos.push(crit);
+              }
+            });
+            // Empujamos la última pestaña
+            if (currentTab.campos.length > 0 || tabs.length === 0) tabs.push(currentTab);
+            return tabs;
+          });
+
+          // Reemplaza tu abrirFormularioNuevaEvaluacion actual por esta:
+          const abrirFormularioNuevaEvaluacion = async () => {
+            modoEvaluacion.value = 'formulario';
+            evaluacionActiva.value.criterios = [];
+            evaluacionActiva.value.respuestas = {};
+            evaluacionActiva.value.id_expediente = '';
+            evaluacionActiva.value.observaciones = '';
+            evaluacionActiva.value.cargando = true;
+
+            try {
+              const response = await gasRun('apiObtenerCriteriosTramite', evaluacionActiva.value.tramite.id_tramite);
+              if (response && response.criterios) {
+                evaluacionActiva.value.criterios = response.criterios;
+                
+                // Guardamos el id_plantilla actual para enviarlo a la DB
+                if (response.criterios.length > 0) {
+                  evaluacionActiva.value.id_plantilla = response.criterios[0].id_plantilla;
+                }
+
+                response.criterios.forEach(c => {
+                  if (c.tipo_input !== 'tab' && c.tipo_input !== 'titulo') {
+                    // AHORA LAS RESPUESTAS SE ATAN AL ID_CRITERIO (Llave foránea), no al texto
+                    evaluacionActiva.value.respuestas[c.id_criterio] = {
+                      valor: '',
+                      es_archivo: c.tipo_input === 'file'
+                    };
+                  }
+                });
+                tabActivoEvaluacion.value = tabsEvaluacionConfigurados.value[0]?.nombre || 'General';
+              }
+            } catch (error) {
+              console.error(error);
+            } finally {
+              evaluacionActiva.value.cargando = false;
+            }
+          };
+
+          const columnasDinamicasTabla = ref([]); // <-- NUEVA VARIABLE
+
+          const seleccionarTramiteParaEvaluacion = async (tramite) => {
+            evaluacionActiva.value.tramite = tramite;
+            modoEvaluacion.value = 'lista';
+            listaEvaluaciones.value = [];
+            columnasDinamicasTabla.value = []; // Limpiamos al cambiar
+            evaluacionActiva.value.cargando = true;
+
+            try {
+              const res = await gasRun('apiObtenerEvaluacionesPorTramite', tramite.id_tramite);
+              if (res && res.success) {
+                listaEvaluaciones.value = res.evaluaciones || [];
+                columnasDinamicasTabla.value = res.columnasDinamicas || []; // Cargamos las columnas
+              }
+            } catch (error) {
+              console.error(error);
+            } finally {
+              evaluacionActiva.value.cargando = false;
+            }
+          };
+
+          const listaEvaluaciones = ref([]); // Almacena el historial de la DB
+
+          const formatearFecha = (fechaISO) => {
+            if (!fechaISO) return '-';
+            const fecha = new Date(fechaISO);
+            return fecha.toLocaleDateString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+          };
+
+          const obtenerOpcionesCatalogo = (categoria) => {
+            return catalogosLocales.value
+              .filter(c => c.categoria === categoria && c.estado === 'Activo')
+              .map(c => c.valor);
+          };
+
+          const guardarEvaluacion = async () => {
+            if (!evaluacionActiva.value.id_expediente) {
+              return Swal.fire('Atención', 'Debe ingresar el ID del Expediente.', 'warning');
+            }
+
+            // Convertir el diccionario a un Array para la base de datos
+            const payloadRespuestas = [];
+            for (const [idCrit, dataResp] of Object.entries(evaluacionActiva.value.respuestas)) {
+              if (dataResp.valor !== '') {
+                payloadRespuestas.push({
+                  id_criterio: idCrit,
+                  valor: dataResp.valor,
+                  es_archivo: dataResp.es_archivo
+                });
+              }
+            }
+
+            if (payloadRespuestas.length === 0) {
+              return Swal.fire('Formulario Vacío', 'Debe completar al menos un campo.', 'warning');
+            }
+
+            const payload = {
+              tramite: evaluacionActiva.value.tramite,
+              id_plantilla: evaluacionActiva.value.id_plantilla,
+              id_expediente: evaluacionActiva.value.id_expediente,
+              observaciones: evaluacionActiva.value.observaciones,
+              puntuacion_total: 0, // Si luego agregas pesos, lo calculas aquí
+              respuestas: payloadRespuestas
+            };
+
+            try {
+              const res = await gasRun('apiGuardarEvaluacionCompleta', payload);
+              if (res && res.success) {
+                Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Registrado con éxito', showConfirmButton: false, timer: 2000 });
+                seleccionarTramiteParaEvaluacion(evaluacionActiva.value.tramite);
+              }
+            } catch (error) {}
+          };
+
           onMounted(() => { cargarDatosArranque(); });
 
           // ==========================================
-          // 5. EXPOSICIÓN DE VARIABLES HACIA EL HTML
+          // 5. EXPOSICIÓN DE VARIABLES A HTML
           // ==========================================
           return {
-            vistaActual, cambiarVista, tramitesLocales, catalogosLocales,
-            // Retornos Admin EAV
-            tramiteSeleccionado, criteriosBorrador, seleccionarTramite, crearTramiteMock, agregarCriterio, eliminarCriterio, guardarConfiguracionEAV,
-            // Retornos CRUD Catálogos
-            categoriasCatalogoUnicas, filtroCatalogo, catalogoEnEdicion, catalogosFiltrados, limpiarFormularioCatalogo, editarItemCatalogo, guardarItemCatalogo, eliminarItemCatalogo
+            vistaActual, cambiarVista, tramitesLocales, catalogosLocales, tituloVista, filtroOrigen, crearNuevoTramite, eliminarTramite, 
+            tramiteSeleccionado, criteriosBorrador, seleccionarTramite, agregarCriterio, eliminarCriterio, guardarConfiguracionEAV, menuPrincipalAbierto,
+            
+            // ---> AÑADIDOS Y CORREGIDOS PARA OPERACIÓN (EVALUACIÓN):
+            evaluacionActiva, seleccionarTramiteParaEvaluacion, abrirFormularioNuevaEvaluacion, guardarEvaluacion, obtenerOpcionesCatalogo, modoEvaluacion, listaEvaluaciones, formatearFecha, tabActivoEvaluacion, tabsEvaluacionConfigurados,menuTramitesAbierto, 
+            
+            arrastrarInicio, arrastrarFin, arrastrarSobre, arrastrarFuera, arrastrarSoltar,
+            filtroCategoria, categoriasCatalogoUnicas, filtroCatalogo, catalogoEnEdicion, catalogosFiltrados, limpiarFormularioCatalogo, editarItemCatalogo, guardarItemCatalogo, eliminarItemCatalogo,
+            abrirModalImportar, importTramiteSeleccionado, preguntasAImportar, cargandoImportacion, cargarPreguntasAImportar, ejecutarImportacion
           };
         }
       }).mount('#app');

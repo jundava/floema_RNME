@@ -37,7 +37,7 @@ const DB_SCHEMA = {
   // --- MOTOR DINÁMICO (Configuración) ---
   "CFG_TRAMITES": ["id_tramite", "nombre_tramite", "descripcion", "requiere_evidencia", "estado_activo"],
   "CFG_PLANTILLAS": ["id_plantilla", "id_tramite", "version", "fecha_vigencia", "estado_activo"],
-  "CFG_CRITERIOS": ["id_criterio", "id_plantilla", "tipo_input", "etiqueta_pregunta", "opciones_json", "peso", "es_obligatorio", "orden", "estado_activo"],
+  "CFG_CRITERIOS": ["id_criterio", "id_plantilla", "tipo_input", "etiqueta_pregunta", "opciones_json", "peso", "es_obligatorio", "orden", "ancho", "estado_activo", "mostrar_en_tabla"],
 
   // --- MOTOR DINÁMICO (Transaccional EAV) ---
   "DAT_EXPEDIENTES": ["id_expediente", "id_empresa", "id_equipo", "id_tramite", "email_solicitante", "fecha_creacion", "estado_workflow"],
