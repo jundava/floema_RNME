@@ -266,7 +266,7 @@
       
       <div class="sidebar-nav">
         <div class="px-4 mt-2 mb-2 text-uppercase small text-muted fw-bold" style="font-size: 0.75rem; letter-spacing: 1px;">Operación</div>
-        <a class="sidebar-link cursor-pointer" :class="{ 'active': vistaActual === 'MenuPrincipal' }" @click="cambiarVista('MenuPrincipal')">📊 Dashboard</a>
+        <a class="sidebar-link cursor-pointer" :class="{ 'active': vistaActual === 'MenuPrincipal' }" @click="actualizarDashboard()">📊 Dashboard</a>
         <a class="sidebar-link cursor-pointer" :class="{ 'active': vistaActual === 'Evaluacion' }" @click="cambiarVista('Evaluacion')">📝 Iniciar Evaluación</a>
         
         <div class="px-4 mt-4 mb-2 text-uppercase small text-muted fw-bold" style="font-size: 0.75rem; letter-spacing: 1px;">Configuración</div>
@@ -296,15 +296,43 @@
       <div class="app-container">
         
         <div v-if="vistaActual === 'MenuPrincipal'">
-          <div class="row">
-            <div class="col-md-12 mb-4">
+          <div class="row mb-4">
+            <div class="col-md-12">
               <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
                 <div class="card-body p-5 bg-white">
                   <h2 class="mb-3 text-dark">Bienvenido a Floema RNME</h2>
-                  <p class="text-muted fs-5">Utiliza el menú lateral para gestionar catálogos, configurar plantillas dinámicas o iniciar una nueva evaluación técnica.</p>
+                  <p class="text-muted fs-5">Utiliza el menú lateral para gestionar catálogos, configurar plantillas dinámicas o iniciar una evaluación.</p>
                 </div>
               </div>
             </div>
+          </div>
+          
+          <div class="row g-4">
+            
+            <div class="col-md-6">
+              <div class="card border-0 shadow-sm" style="border-left: 5px solid var(--floema-primary) !important;">
+                <div class="card-body d-flex justify-content-between align-items-center p-4">
+                  <div>
+                    <h6 class="text-muted text-uppercase fw-bold mb-2" style="letter-spacing: 1px;">Trámites Activos</h6>
+                    <h2 class="mb-0 fw-bold text-dark">{{ tramitesLocales.length }}</h2>
+                  </div>
+                  <div class="fs-1 opacity-50">📄</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="card border-0 shadow-sm" style="border-left: 5px solid var(--floema-secondary) !important;">
+                <div class="card-body d-flex justify-content-between align-items-center p-4">
+                  <div>
+                    <h6 class="text-muted text-uppercase fw-bold mb-2" style="letter-spacing: 1px;">Variables de Catálogo</h6>
+                    <h2 class="mb-0 fw-bold text-dark">{{ catalogosLocales.length }}</h2>
+                  </div>
+                  <div class="fs-1 opacity-50">📚</div>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
 
@@ -320,19 +348,13 @@
                 <div class="card-header text-white d-flex align-items-center cursor-pointer" 
                      :class="menuTramitesAbierto ? 'justify-content-between' : 'justify-content-center px-3'"
                      @click="menuTramitesAbierto = !menuTramitesAbierto"
-                     style="background-color: var(--floema-sidebar) !important;"
-                     title="Clic para expandir/colapsar">
-                     
+                     style="background-color: var(--floema-sidebar) !important;">
                   <h5 class="mb-0 text-white text-nowrap" v-if="menuTramitesAbierto">1. Seleccione el Trámite</h5>
-                  
                   <span class="fs-5" :class="menuTramitesAbierto ? 'ms-3' : ''">☰</span>
-                  
                 </div>
                 
                 <ul class="list-group list-group-flush" v-show="menuTramitesAbierto">
-                  <li v-if="tramitesLocales.length === 0" class="list-group-item text-muted small text-center py-4">
-                    No hay trámites configurados en el sistema.
-                  </li>
+                  <li v-if="tramitesLocales?.length === 0" class="list-group-item text-muted small text-center py-4">No hay trámites.</li>
                   <li class="list-group-item list-group-item-action cursor-pointer d-flex justify-content-between align-items-center" 
                       v-for="tramite in tramitesLocales" :key="tramite.id_tramite" 
                       @click="seleccionarTramiteParaEvaluacion(tramite)" 
@@ -341,25 +363,20 @@
                     <span>▶️</span>
                   </li>
                 </ul>
-                
               </div>
             </div>
 
             <div :class="menuTramitesAbierto ? 'col-md-8' : 'col'" v-if="evaluacionActiva.tramite" style="transition: all 0.2s ease-in-out;">
-              
               <div v-if="evaluacionActiva.cargando" class="text-center py-5">
-                <div class="spinner-border" style="color: var(--floema-primary);" role="status"></div>
-                <p class="mt-2 text-muted fw-bold">Cargando información...</p>
+                <div class="spinner-border text-primary"></div>
+                <p class="mt-2 text-muted fw-bold">Cargando...</p>
               </div>
 
               <div class="card shadow-sm border-0" v-else-if="modoEvaluacion === 'lista'">
                 <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center" style="background-color: var(--floema-sidebar) !important;">
-                  <h5 class="mb-0 text-white">Registros: {{ evaluacionActiva.tramite.nombre_tramite }}</h5>
-                  <button class="btn btn-sm btn-light text-dark fw-bold shadow-sm" @click="abrirFormularioNuevaEvaluacion">
-                    + Nueva Evaluación
-                  </button>
+                  <h5 class="mb-0 text-white">Registros: {{ evaluacionActiva.tramite?.nombre_tramite }}</h5>
+                  <button class="btn btn-sm btn-light text-dark fw-bold shadow-sm" @click="abrirFormularioNuevaEvaluacion">+ Nueva Evaluación</button>
                 </div>
-                
                 <div class="card-body p-0">
                   <div class="table-responsive" style="max-height: calc(100vh - 280px); overflow-y: auto;">
                     <table class="table table-hover table-sm mb-0 align-middle">
@@ -385,17 +402,15 @@
                              <span class="text-secondary fw-bold">{{ ev.respuestas && ev.respuestas[col.id_criterio] ? ev.respuestas[col.id_criterio] : '-' }}</span>
                           </td>
 
-                          <td>
-                            <span class="badge bg-info shadow-sm text-dark">{{ ev.puntuacion_total }} pts</span>
-                          </td>
+                          <td><span class="badge bg-info shadow-sm text-dark">{{ ev.puntuacion_total }} pts</span></td>
                           <td class="text-end pe-4">
-                            <button class="btn btn-sm btn-outline-info" :title="ev.observaciones ? 'Obs: ' + ev.observaciones : 'Ver Detalle'">👁️</button>
+                            <button class="btn btn-sm btn-outline-primary" @click="editarEvaluacion(ev)" title="Editar Evaluación">✏️</button>
                           </td>
                         </tr>
-                        <tr v-if="listaEvaluaciones.length === 0">
-                          <td :colspan="5 + columnasDinamicasTabla.length" class="text-center py-5 text-muted">
+                        <tr v-if="listaEvaluaciones?.length === 0">
+                          <td :colspan="5 + (columnasDinamicasTabla?.length || 0)" class="text-center py-5 text-muted">
                             <div class="fs-1 mb-2">📭</div>
-                            No hay evaluaciones registradas para este trámite aún.
+                            No hay evaluaciones registradas.
                           </td>
                         </tr>
                       </tbody>
@@ -406,30 +421,29 @@
 
               <div class="card shadow-sm border-secondary" v-else-if="modoEvaluacion === 'formulario'">
                 <div class="card-header bg-white border-bottom">
-                  <h5 class="mb-0" style="color: var(--floema-primary);">Completar Datos: {{ evaluacionActiva.tramite.nombre_tramite }}</h5>
+                  <h5 class="mb-0" style="color: var(--floema-primary);">
+                    {{ evaluacionActiva.id_evaluacion ? '✏️ Editando Registro:' : '✨ Nueva Evaluación:' }} {{ evaluacionActiva.tramite?.nombre_tramite }}
+                  </h5>
                 </div>
-                
                 <div class="card-body">
-                  <div v-if="evaluacionActiva.criterios.length === 0" class="alert alert-warning">
-                    ⚠️ Este trámite aún no tiene preguntas configuradas. Vaya a "Diseñar Formularios" para agregarlas.
-                    <br><br>
+                  <div v-if="evaluacionActiva.criterios?.length === 0" class="alert alert-warning">
+                    ⚠️ Este trámite aún no tiene preguntas configuradas.<br><br>
                     <button class="btn btn-sm btn-outline-secondary" @click="modoEvaluacion = 'lista'">Volver</button>
                   </div>
 
                   <form @submit.prevent="guardarEvaluacion" v-else>
-                    
                     <div class="row g-3 mb-4 p-3 bg-light border rounded shadow-sm">
                       <div class="col-md-4">
-                        <label class="form-label fw-bold text-dark small">Expediente <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control border-secondary" v-model="evaluacionActiva.id_expediente" placeholder="Ej. DNLCAT-2026-001" required>
+                        <label class="form-label fw-bold text-dark small">ID Expediente <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control border-secondary" v-model="evaluacionActiva.id_expediente" placeholder="Ej. EXP-2024-001" required>
                       </div>
                       <div class="col-md-8">
                         <label class="form-label fw-bold text-dark small">Observaciones Generales</label>
-                        <input type="text" class="form-control" v-model="evaluacionActiva.observaciones" placeholder="Anotaciones sobre este expediente...">
+                        <input type="text" class="form-control" v-model="evaluacionActiva.observaciones" placeholder="Anotaciones...">
                       </div>
                     </div>
 
-                    <ul class="nav nav-tabs mb-4" v-if="tabsEvaluacionConfigurados.length > 1">
+                    <ul class="nav nav-tabs mb-4" v-if="tabsEvaluacionConfigurados?.length > 1 || (tabsEvaluacionConfigurados?.length === 1 && tabsEvaluacionConfigurados[0]?.nombre !== 'General')">
                       <li class="nav-item" v-for="tab in tabsEvaluacionConfigurados" :key="tab.nombre">
                         <button class="nav-link fw-bold" :class="{ 'active': tabActivoEvaluacion === tab.nombre }" 
                                 @click="tabActivoEvaluacion = tab.nombre" type="button" 
@@ -441,40 +455,27 @@
 
                     <template v-for="tab in tabsEvaluacionConfigurados" :key="tab.nombre">
                       <div class="row g-4" v-show="tabActivoEvaluacion === tab.nombre">
-                        
                         <div v-for="(crit, index) in tab.campos" :key="index" :class="crit.ancho || 'col-md-12'">
                           
                           <div v-if="crit.tipo_input === 'titulo'" class="mt-2 mb-2">
-                            <h6 class="fw-bold text-uppercase border-bottom pb-2" style="color: var(--floema-sidebar); letter-spacing: 0.5px;">
-                              {{ crit.etiqueta_pregunta }}
-                            </h6>
+                            <h6 class="fw-bold text-uppercase border-bottom pb-2" style="color: var(--floema-sidebar); letter-spacing: 0.5px;">{{ crit.etiqueta_pregunta }}</h6>
                           </div>
 
                           <template v-else>
-                            <label class="form-label fw-bold text-dark small">
-                              {{ crit.etiqueta_pregunta }}
-                            </label>
+                            <label class="form-label fw-bold text-dark small">{{ crit.etiqueta_pregunta }}</label>
                             
-                            <input v-if="crit.tipo_input === 'texto'" type="text" class="form-control bg-light" 
-                                   v-model="evaluacionActiva.respuestas[crit.id_criterio].valor" placeholder="Escriba aquí...">
-                            
-                            <input v-else-if="crit.tipo_input === 'numero'" type="number" class="form-control bg-light" 
-                                   v-model="evaluacionActiva.respuestas[crit.id_criterio].valor" placeholder="0">
-                            
-                            <select v-else-if="crit.tipo_input === 'select'" class="form-select bg-light border-primary" 
-                                    v-model="evaluacionActiva.respuestas[crit.id_criterio].valor">
+                            <input v-if="crit.tipo_input === 'texto'" type="text" class="form-control bg-white" v-model="evaluacionActiva.respuestas[crit.id_criterio].valor">
+                            <input v-else-if="crit.tipo_input === 'numero'" type="number" class="form-control bg-white" v-model="evaluacionActiva.respuestas[crit.id_criterio].valor">
+                            <select v-else-if="crit.tipo_input === 'select'" class="form-select bg-white border-primary" v-model="evaluacionActiva.respuestas[crit.id_criterio].valor">
                               <option value="">-- Seleccione una opción --</option>
                               <option v-for="opcion in obtenerOpcionesCatalogo(crit.opciones_json)" :key="opcion" :value="opcion">{{ opcion }}</option>
                             </select>
-                            
                             <div v-else-if="crit.tipo_input === 'file'" class="input-group">
                               <span class="input-group-text bg-white">🔗</span>
-                              <input type="url" class="form-control bg-light" v-model="evaluacionActiva.respuestas[crit.id_criterio].valor" placeholder="Pegue enlace de Drive...">
+                              <input type="url" class="form-control bg-white" v-model="evaluacionActiva.respuestas[crit.id_criterio].valor" placeholder="Pegue enlace de Drive...">
                             </div>
                           </template>
-
                         </div>
-
                       </div>
                     </template>
                     
@@ -486,7 +487,6 @@
                   </form>
                 </div>
               </div>
-
             </div>
             
             <div :class="menuTramitesAbierto ? 'col-md-8' : 'col'" v-else style="transition: all 0.2s ease-in-out;">
@@ -494,7 +494,6 @@
                 ⬅️ Seleccione un Trámite del panel izquierdo para revisar su historial o iniciar una nueva evaluación.
               </div>
             </div>
-
           </div>
         </div>
 
@@ -759,6 +758,7 @@
                           <option value="Todos">🌍 Todos los Orígenes</option>
                           <option value="Floema">🌱 Solo Floema</option>
                           <option value="Bitacora">🏛️ Solo Bitácora</option>
+                          <option value="Sistema Externo">🔗 Sistema Externo</option>
                         </select>
                       </div>
                       <div class="col-md-4">
@@ -789,8 +789,9 @@
                           <td class="fw-bold ps-4 text-dark">{{ item.categoria }}</td>
                           <td>{{ item.valor }}</td>
                           <td>
-                            <span class="badge" :class="item.origen === 'Bitacora' ? 'bg-secondary' : 'bg-info text-dark'" 
-                                  :style="item.origen !== 'Bitacora' ? 'background-color: rgba(0, 151, 178, 0.2) !important; color: var(--floema-secondary) !important;' : ''">
+                            <span class="badge" 
+                                  :class="{'bg-info text-dark': item.origen === 'Floema', 'bg-secondary': item.origen === 'Bitacora', 'bg-warning text-dark': item.origen === 'Sistema Externo'}" 
+                                  :style="item.origen === 'Floema' ? 'background-color: rgba(0, 151, 178, 0.2) !important;' : ''">
                               {{ item.origen || 'Floema' }}
                             </span>
                           </td>
@@ -957,7 +958,8 @@
                   tipo_input: c.tipo_input,
                   etiqueta_pregunta: c.etiqueta_pregunta,
                   opciones_json: c.opciones_json || '',
-                  ancho: c.ancho || 'col-md-12', // <--- AQUÍ ESTÁ LA MAGIA QUE FALTABA
+                  ancho: c.ancho || 'col-md-12',
+                  mostrar_en_tabla: c.mostrar_en_tabla === true || String(c.mostrar_en_tabla).trim().toLowerCase() === 'true',
                   _expanded: false
                 }));
               }
@@ -1088,9 +1090,11 @@
             catalogoEnEdicion.value = { categoria: '', valor: '', estado: 'Activo', origen: 'Floema' };
           };
 
-          const editarItemCatalogo = (item) => {
-            if (item.origen === 'Bitacora') return; // Seguridad Front-end
-            catalogoEnEdicion.value = JSON.parse(JSON.stringify(item)); 
+          const editarItemCatalogo = (item) => { 
+            // Solo permite editar lo que se creó nativamente en Floema
+            if (item.origen === 'Floema' || !item.origen) {
+              catalogoEnEdicion.value = JSON.parse(JSON.stringify(item)); 
+            }
           };
 
           const guardarItemCatalogo = async () => {
@@ -1126,7 +1130,7 @@
           };
 
           const eliminarItemCatalogo = async (item) => {
-            if (item.origen === 'Bitacora') return; // Seguridad Front-end
+            if (item.origen !== 'Floema' && item.origen) return;
             
             const confirmacion = await Swal.fire({
               title: '¿Eliminar registro?',
@@ -1161,6 +1165,12 @@
             } catch (e) {
               cambiarVista('MenuPrincipal'); 
             }
+          };
+
+          const actualizarDashboard = async () => {
+            // Ponemos la vista en estado de carga para que el usuario sepa que está refrescando
+            vistaActual.value = 'Cargando'; 
+            await cargarDatosArranque(); // Llama al backend, trae datos frescos y vuelve a abrir el MenuPrincipal
           };
 
           // ==========================================
@@ -1238,6 +1248,7 @@
             id_plantilla: null, // NUEVO
             id_expediente: '',  // NUEVO
             observaciones: '',  // NUEVO
+            id_evaluacion: null,
             criterios: [],
             respuestas: {},
             cargando: false
@@ -1271,6 +1282,9 @@
           // Reemplaza tu abrirFormularioNuevaEvaluacion actual por esta:
           const abrirFormularioNuevaEvaluacion = async () => {
             modoEvaluacion.value = 'formulario';
+
+            evaluacionActiva.value.id_evaluacion = null; // Reinicia el ID para que sea una nueva
+
             evaluacionActiva.value.criterios = [];
             evaluacionActiva.value.respuestas = {};
             evaluacionActiva.value.id_expediente = '';
@@ -1304,6 +1318,8 @@
               evaluacionActiva.value.cargando = false;
             }
           };
+
+          
 
           const columnasDinamicasTabla = ref([]); // <-- NUEVA VARIABLE
 
@@ -1363,11 +1379,13 @@
             }
 
             const payload = {
+              id_evaluacion: evaluacionActiva.value.id_evaluacion,
               tramite: evaluacionActiva.value.tramite,
               id_plantilla: evaluacionActiva.value.id_plantilla,
               id_expediente: evaluacionActiva.value.id_expediente,
               observaciones: evaluacionActiva.value.observaciones,
               puntuacion_total: 0, // Si luego agregas pesos, lo calculas aquí
+              criterios_snapshot: evaluacionActiva.value.criterios, // <--- AQUÍ SE ENVÍA LA FOTO DEL FORMULARIO
               respuestas: payloadRespuestas
             };
 
@@ -1380,6 +1398,51 @@
             } catch (error) {}
           };
 
+          const editarEvaluacion = async (ev) => {
+            modoEvaluacion.value = 'formulario';
+            evaluacionActiva.value.criterios = [];
+            evaluacionActiva.value.respuestas = {};
+            evaluacionActiva.value.id_evaluacion = ev.id_evaluacion; // Seteamos el ID a editar
+            evaluacionActiva.value.id_expediente = ev.id_expediente;
+            evaluacionActiva.value.observaciones = ev.observaciones;
+            evaluacionActiva.value.cargando = true;
+
+            try {
+              // Ya no pedimos la plantilla actual a ciegas, pedimos el detalle que trae el snapshot
+              const resDetalle = await gasRun('apiObtenerDetalleEvaluacion', ev.id_evaluacion);
+
+              if (resDetalle && resDetalle.success) {
+                
+                // 1. Si la evaluación tiene snapshot guardado, lo usamos para reconstruir el formulario.
+                // Si no tiene (porque es una evaluación muy antigua), usamos la plantilla actual como salvavidas.
+                if (resDetalle.snapshot && resDetalle.snapshot.length > 0) {
+                  evaluacionActiva.value.criterios = resDetalle.snapshot;
+                } else {
+                  const resCrit = await gasRun('apiObtenerCriteriosTramite', evaluacionActiva.value.tramite.id_tramite);
+                  evaluacionActiva.value.criterios = resCrit.criterios || [];
+                }
+
+                if (evaluacionActiva.value.criterios.length > 0) {
+                  evaluacionActiva.value.id_plantilla = evaluacionActiva.value.criterios[0].id_plantilla;
+                }
+
+                // 2. Extraemos las respuestas
+                let respuestasDB = resDetalle.respuestas || {};
+
+                // 3. Emparejamos el formulario (snapshot o plantilla) con las respuestas guardadas
+                evaluacionActiva.value.criterios.forEach(c => {
+                  if (c.tipo_input !== 'tab' && c.tipo_input !== 'titulo') {
+                    evaluacionActiva.value.respuestas[c.id_criterio] = { 
+                      valor: respuestasDB[c.id_criterio] || '', // Si hay guardado lo pone, si no, vacío
+                      es_archivo: c.tipo_input === 'file' 
+                    };
+                  }
+                });
+                tabActivoEvaluacion.value = tabsEvaluacionConfigurados.value[0]?.nombre || 'General';
+              }
+            } catch (error) {} finally { evaluacionActiva.value.cargando = false; }
+          };
+
           onMounted(() => { cargarDatosArranque(); });
 
           // ==========================================
@@ -1390,7 +1453,7 @@
             tramiteSeleccionado, criteriosBorrador, seleccionarTramite, agregarCriterio, eliminarCriterio, guardarConfiguracionEAV, menuPrincipalAbierto,
             
             // ---> AÑADIDOS Y CORREGIDOS PARA OPERACIÓN (EVALUACIÓN):
-            evaluacionActiva, seleccionarTramiteParaEvaluacion, abrirFormularioNuevaEvaluacion, guardarEvaluacion, obtenerOpcionesCatalogo, modoEvaluacion, listaEvaluaciones, formatearFecha, tabActivoEvaluacion, tabsEvaluacionConfigurados,menuTramitesAbierto, 
+            evaluacionActiva, seleccionarTramiteParaEvaluacion, abrirFormularioNuevaEvaluacion, guardarEvaluacion, obtenerOpcionesCatalogo, modoEvaluacion, listaEvaluaciones, formatearFecha, tabActivoEvaluacion, tabsEvaluacionConfigurados,menuTramitesAbierto, editarEvaluacion, actualizarDashboard, columnasDinamicasTabla, 
             
             arrastrarInicio, arrastrarFin, arrastrarSobre, arrastrarFuera, arrastrarSoltar,
             filtroCategoria, categoriasCatalogoUnicas, filtroCatalogo, catalogoEnEdicion, catalogosFiltrados, limpiarFormularioCatalogo, editarItemCatalogo, guardarItemCatalogo, eliminarItemCatalogo,

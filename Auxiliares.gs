@@ -31,8 +31,8 @@ const DB_SCHEMA = {
   "APP_CATALOGOS": ["id_catalogo", "categoria", "valor", "padre_id", "estado", "origen"],
 
   // --- TABLAS MAESTRAS ---
-  "DAT_EMPRESAS": ["id_empresa", "ruc", "razon_social", "representante", "email", "telefono", "direccion", "estado_activo"],
-  "DAT_EQUIPOS": ["id_equipo", "id_empresa", "tipo_equipo", "marca", "modelo", "nro_serie", "estado_activo"],
+  "DAT_EMPRESAS": ["id_empresa", "razon_social", "ruc", "representante", "email", "direccion", "tipo_entidad", "actividad_principal"],
+  "DAT_EQUIPOS": ["id_registro", "id_empresa", "descripcion","marca", "serial_psicométrico", "serial_sensométrico", "estado_homologacion"],
 
   // --- MOTOR DINÁMICO (Configuración) ---
   "CFG_TRAMITES": ["id_tramite", "nombre_tramite", "descripcion", "requiere_evidencia", "estado_activo"],
@@ -41,7 +41,7 @@ const DB_SCHEMA = {
 
   // --- MOTOR DINÁMICO (Transaccional EAV) ---
   "DAT_EXPEDIENTES": ["id_expediente", "id_empresa", "id_equipo", "id_tramite", "email_solicitante", "fecha_creacion", "estado_workflow"],
-  "DAT_EVALUACIONES": ["id_evaluacion", "id_expediente", "id_plantilla", "email_evaluador", "fecha_evaluacion", "puntuacion_total", "observaciones"],
+  "DAT_EVALUACIONES": ["id_evaluacion", "id_expediente", "id_plantilla", "email_evaluador", "fecha_evaluacion", "puntuacion_total", "observaciones","snapshot_plantilla"],
   "DAT_RESPUESTAS": ["id_respuesta", "id_evaluacion", "id_criterio", "valor_respuesta", "id_evidencia_drive"]
 };
 
