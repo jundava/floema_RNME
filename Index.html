@@ -2,415 +2,1245 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>App Floema RNME</title>
+  <title>Floema RNME · Gestión de Trámites</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.0/dist/sweetalert2.min.css" rel="stylesheet">
+
   <style>
-    /* ==========================================
-       IDENTIDAD FLOEMA RNME - LAYOUT SÓLIDO
-       ========================================== */
+    /* ═══════════════════════════════════════════════
+       TOKENS DE DISEÑO — SISTEMA DE VARIABLES
+    ═══════════════════════════════════════════════ */
     :root {
-      --floema-primary: #00A5C2;       /* El Cian solicitado (Reemplazo del #243F5C) */
-      --floema-primary-hover: #007D93; /* Cian oscurecido para hovers */
-      --floema-secondary: #1E5631;     /* Verde corporativo para acentos/éxito */
-      --floema-sidebar: #028DA8;       /* Sidebar sólido en Cian */
-      --floema-bg: #F4F6F9;            /* Fondo gris claro profesional (ERP) */
-      --floema-surface: #FFFFFF;       /* Fondo de las tarjetas */
-      --floema-text: #333333;
-      --floema-border: #E2E8F0;
+      /* Paleta de color */
+      --c-cyan:        #00B4D8;
+      --c-cyan-light:  #48CAE4;
+      --c-cyan-dim:    rgba(0, 180, 216, 0.12);
+      --c-cyan-hover:  #0096B4;
+      --c-navy:        #0B1929;
+      --c-navy-mid:    #112233;
+      --c-navy-soft:   #1A3348;
+      --c-green:       #10B981;
+      --c-green-dim:   rgba(16, 185, 129, 0.12);
+      --c-amber:       #F59E0B;
+      --c-amber-dim:   rgba(245, 158, 11, 0.12);
+      --c-red:         #EF4444;
+      --c-red-dim:     rgba(239, 68, 68, 0.12);
+
+      /* Escala de grises (fondo azul-gris muy refinado) */
+      --bg-app:        #F0F4F8;
+      --bg-surface:    #FFFFFF;
+      --bg-surface2:   #F8FAFC;
+      --bg-overlay:    rgba(11, 25, 41, 0.04);
+
+      /* Texto */
+      --t-primary:     #0F1D2B;
+      --t-secondary:   #4A6582;
+      --t-muted:       #8BA3BA;
+      --t-inverse:     #FFFFFF;
+
+      /* Bordes */
+      --border:        #E2EBF3;
+      --border-strong: #CAD9E8;
+
+      /* Sombras */
+      --shadow-xs:  0 1px 3px rgba(11,25,41,0.06), 0 1px 2px rgba(11,25,41,0.04);
+      --shadow-sm:  0 2px 8px rgba(11,25,41,0.08), 0 1px 3px rgba(11,25,41,0.05);
+      --shadow-md:  0 4px 16px rgba(11,25,41,0.10), 0 2px 6px rgba(11,25,41,0.06);
+      --shadow-lg:  0 8px 32px rgba(11,25,41,0.12), 0 4px 12px rgba(11,25,41,0.07);
+      --shadow-cyan: 0 4px 20px rgba(0, 180, 216, 0.25);
+
+      /* Layout */
+      --sidebar-w: 268px;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+      --radius-xl: 20px;
+
+      /* Transiciones */
+      --transition: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    body { 
-      background-color: var(--floema-bg) !important; 
-      color: var(--floema-text) !important;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    /* ═══════════════════════════════════════════════
+       RESET Y BASE
+    ═══════════════════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      background: var(--bg-app);
+      color: var(--t-primary);
       overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
     }
 
-    [v-cloak] { display: none; }
+    [v-cloak] { display: none !important; }
     .cursor-pointer { cursor: pointer; }
-
-    /* ==========================================
-       LAYOUT: SIDEBAR (ANCLADO Y SÓLIDO)
-       ========================================== */
-    .sidebar {
-      width: 260px;
-      height: 100vh;
-      position: fixed;
-      top: 0; left: 0;
-      background-color: var(--floema-sidebar) !important;
-      color: white;
-      box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-      z-index: 1000;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .sidebar-logo {
-      padding: 20px;
-      text-align: center;
-      background-color: rgba(0,0,0,0.05); /* Leve oscurecimiento en la zona del logo */
-      border-bottom: 1px solid rgba(255,255,255,0.15);
-      margin-bottom: 10px;
-    }
-
-    .sidebar-logo img {
-      max-width: 95%;    /* Aprovecha más el espacio */
-      height: auto;      /* Mantiene proporción */
-      border-radius: 8px; /* Suaviza las esquinas de la imagen del logo */
-      /* Se eliminaron: background: white, padding y el box-shadow pesado */
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Sombra muy sutil para despegarlo apenas del fondo */
-    }
-
-    .sidebar-nav { flex-grow: 1; padding-top: 10px; }
-
-    .sidebar-link {
-      display: block;
-      padding: 12px 25px;
-      color: rgba(255,255,255,0.9);
-      text-decoration: none;
-      font-weight: 500;
-      border-left: 5px solid transparent;
-      transition: all 0.2s ease-in-out;
-    }
-
-    .sidebar-link:hover, .sidebar-link.active {
-      background-color: rgba(0,0,0,0.1) !important; /* Oscurece el cian de fondo */
-      border-left-color: #FFFFFF !important; /* Barra indicadora blanca */
-      color: white;
-    }
-
-    /* ==========================================
-       LAYOUT: CONTENIDO PRINCIPAL
-       ========================================== */
-    .main-content {
-      margin-left: 260px;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .top-header {
-      background: var(--floema-surface);
-      border-bottom: 2px solid var(--floema-primary);
-      padding: 15px 30px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.02);
-    }
-
-    .app-container { padding: 30px; flex-grow: 1; }
-
-    /* ==========================================
-       TARJETAS BOOTSTRAP (SUPERFICIES)
-       ========================================== */
-    .card {
-      border: 1px solid var(--floema-border) !important;
-      border-radius: 8px !important;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.04) !important;
-      background-color: var(--floema-surface) !important;
-    }
-    
-    .card-header {
-      background: var(--floema-surface) !important;
-      border-bottom: 1px solid var(--floema-border) !important;
-      padding: 15px 20px !important;
-    }
-    
-    /* El título por defecto es oscuro/cian, pero se vuelve blanco si la cabecera tiene color */
-    .card-header h5 { color: var(--floema-primary); font-weight: 600; margin: 0; }
-    
-    .card-header.bg-primary { background-color: var(--floema-primary) !important; color: white !important; border-color: var(--floema-primary) !important; }
-    .card-header.bg-primary h5 { color: white !important; }
-    
-    .card-header.bg-dark { background-color: #0097B2 !important; color: white !important; }
-    .card-header.bg-dark h5 { color: white !important; }
-
-    /* ==========================================
-       BOTONES Y CONTROLES
-       ========================================== */
-    .btn { border-radius: 6px !important; font-weight: 500 !important; }
-    
-    .btn-primary { 
-      background-color: var(--floema-primary) !important; 
-      border-color: var(--floema-primary) !important; 
-    }
-    .btn-primary:hover { background-color: var(--floema-primary-hover) !important; }
-    
-    /* El verde lo dejamos para acciones de éxito (Guardar) */
-    .btn-success { background-color: var(--floema-secondary) !important; border-color: var(--floema-secondary) !important; }
-    
-    .btn-outline-primary {
-      color: var(--floema-primary) !important;
-      border-color: var(--floema-primary) !important;
-    }
-    .btn-outline-primary:hover {
-      background-color: var(--floema-primary) !important; color: white !important;
-    }
-
-    .bg-primary { background-color: var(--floema-primary) !important; }
-    .bg-dark { background-color: #007D93 !important; } /* Cabeceras de tabla oscuras para contraste */
-    
-    .list-group-item.active { 
-      background-color: var(--floema-primary) !important; 
-      color: white !important; 
-      border-color: var(--floema-primary) !important; 
-    }
-
-    /* ==========================================
-       TABLAS RESPONSIVAS Y SCROLL CORREGIDO
-       ========================================== */
-    .table-light th { 
-      background-color: var(--floema-bg) !important; 
-      color: var(--floema-text); 
-      font-weight: 600; 
-      border-bottom: 2px solid var(--floema-border); 
-      position: sticky; 
-      top: 0; 
-      z-index: 20; 
-      box-shadow: 0 2px 2px -1px rgba(0,0,0,0.1); 
-    }
-    .table td { vertical-align: middle; border-color: var(--floema-border); background-color: var(--floema-surface) !important; }
-    .table-hover tbody tr:hover td { background-color: rgba(0, 151, 178, 0.05) !important; }
-    
-    .form-control, .form-select { border-radius: 6px; border: 1px solid var(--floema-border); }
-    .form-control:focus, .form-select:focus { border-color: var(--floema-primary); box-shadow: 0 0 0 0.25rem rgba(0, 151, 178, 0.25); }
-
-    /* ==========================================
-       DRAG & DROP (REORDENAMIENTO DE FORMULARIOS)
-       ========================================== */
     .cursor-move { cursor: grab; }
     .cursor-move:active { cursor: grabbing; }
-    
-    /* Efecto "Fantasma" de la tarjeta que estás arrastrando */
-    .drag-ghost { 
-      opacity: 0.4; 
-      border: 2px dashed var(--floema-primary) !important; 
-      background-color: var(--floema-bg) !important;
-    }
-    
-    /* Línea indicadora de dónde va a caer la tarjeta */
-    .drag-over { 
-      border-top: 4px solid var(--floema-secondary) !important; 
-      transform: translateY(2px);
-      transition: all 0.1s ease-in-out;
-    }
 
-    /* ==========================================
-       LAYOUT: SIDEBAR (ANCLADO Y SÓLIDO)
-       ========================================== */
+    /* Scrollbar delgada */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 99px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--t-muted); }
+
+    /* DM Mono para IDs, fechas, badges técnicos */
+    .mono { font-family: 'DM Mono', monospace; font-size: 0.82em; }
+
+    /* ═══════════════════════════════════════════════
+       PANTALLA DE CARGA — SPLASH
+    ═══════════════════════════════════════════════ */
+    .splash {
+      position: fixed; inset: 0;
+      background: var(--c-navy);
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: center;
+      z-index: 9999;
+    }
+    .splash-logo {
+      width: 120px; margin-bottom: 32px;
+      animation: splashPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+      opacity: 0; transform: scale(0.7);
+    }
+    @keyframes splashPop {
+      to { opacity: 1; transform: scale(1); }
+    }
+    .splash-spinner {
+      width: 36px; height: 36px; border-radius: 50%;
+      border: 3px solid rgba(0,180,216,0.2);
+      border-top-color: var(--c-cyan);
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .splash-text {
+      margin-top: 16px; color: rgba(255,255,255,0.4);
+      font-size: 0.82rem; letter-spacing: 0.08em; text-transform: uppercase;
+      font-weight: 500;
+      animation: fadein 0.8s 0.4s both;
+    }
+    @keyframes fadein { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* ═══════════════════════════════════════════════
+       SIDEBAR  — fiel al diseño de referencia
+    ═══════════════════════════════════════════════ */
     .sidebar {
-      width: 260px;
+      width: var(--sidebar-w);
       height: 100vh;
-      position: fixed;
-      top: 0; left: 0;
-      background-color: var(--floema-sidebar) !important;
-      color: white;
-      box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+      position: fixed; top: 0; left: 0;
+      background: #0D1F35;          /* navy igual al screenshot */
+      display: flex; flex-direction: column;
       z-index: 1000;
-      display: flex;
-      flex-direction: column;
-      transition: transform 0.3s ease-in-out; /* NUEVO: Transición suave */
+      transition: transform var(--transition);
+      border-right: 1px solid rgba(255,255,255,0.05);
+    }
+    .sidebar.colapsado { transform: translateX(calc(-1 * var(--sidebar-w))); }
+
+    /* ── Cabecera: logo + nombre centrados ── */
+    .sidebar-header {
+      padding: 32px 20px 22px;
+      text-align: center;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .sidebar-logo-img {
+      width: 64px; height: 64px;
+      object-fit: contain;
+      display: block; margin: 0 auto 12px;
+      filter: drop-shadow(0 2px 8px rgba(0,180,216,0.25));
+    }
+    .sidebar-brand-name {
+      font-size: 1.05rem; font-weight: 800;
+      color: #fff; letter-spacing: 0.04em;
+      text-transform: uppercase;
+      line-height: 1;
+    }
+    .sidebar-brand-sub {
+      font-size: 0.78rem; font-weight: 600;
+      color: #6EE7A0;          /* verde igual al screenshot */
+      margin-top: 5px;
     }
 
-    /* NUEVO: Clase para cuando el menú se cierra */
-    .sidebar.colapsado {
-      transform: translateX(-260px); 
+    /* ── Badge ADMIN verde ── */
+    .role-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      margin-top: 12px;
+      background: #2D7A45;
+      border: 1px solid #3DA05E;
+      border-radius: 5px;
+      padding: 4px 13px;
+      font-size: 0.72rem; font-weight: 700;
+      color: #fff;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
     }
 
-    /* ==========================================
-       LAYOUT: CONTENIDO PRINCIPAL
-       ========================================== */
+    /* ── Navegación: items planos sin caja de icono ── */
+    .sidebar-nav { flex: 1; padding: 10px 0; overflow-y: auto; }
+
+    /* Separador entre header y nav */
+    .sidebar-nav-divider {
+      height: 1px;
+      background: rgba(255,255,255,0.08);
+      margin: 0 0 8px;
+    }
+
+    .nav-item {
+      display: flex; align-items: center; gap: 13px;
+      padding: 12px 22px;
+      color: rgba(255,255,255,0.62);
+      font-size: 0.9rem; font-weight: 500;
+      cursor: pointer;
+      transition: all var(--transition);
+      position: relative;
+      border-left: 3px solid transparent;
+    }
+    .nav-item:hover {
+      background: rgba(255,255,255,0.05);
+      color: rgba(255,255,255,0.92);
+      border-left-color: rgba(0,180,216,0.4);
+    }
+    .nav-item.active {
+      background: rgba(0,180,216,0.10);
+      color: #fff;
+      border-left-color: var(--c-cyan);
+      font-weight: 600;
+    }
+    /* Icono inline — solo emoji/texto, sin caja */
+    .nav-icon {
+      font-size: 1.05rem;
+      width: 22px; text-align: center;
+      flex-shrink: 0;
+      opacity: 0.85;
+    }
+    .nav-item.active .nav-icon { opacity: 1; }
+    .nav-item:hover .nav-icon  { opacity: 1; }
+
+    /* ── Footer del sidebar ── */
+    .sidebar-footer {
+      padding: 14px 16px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+    .user-chip {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 12px;
+      background: rgba(255,255,255,0.05);
+      border-radius: var(--radius-md);
+    }
+    .user-avatar {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--c-cyan), #0077A8);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.68rem; font-weight: 700; color: #fff;
+      flex-shrink: 0;
+    }
+    .user-email-text {
+      font-size: 0.74rem; color: rgba(255,255,255,0.45);
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      font-weight: 500;
+    }
+
+    /* ═══════════════════════════════════════════════
+       LAYOUT PRINCIPAL
+    ═══════════════════════════════════════════════ */
     .main-content {
-      margin-left: 260px;
+      margin-left: var(--sidebar-w);
       min-height: 100vh;
-      display: flex;
+      display: flex; flex-direction: column;
+      transition: margin-left var(--transition);
+    }
+    .main-content.expandido { margin-left: 0; }
+
+    /* ═══════════════════════════════════════════════
+       TOP HEADER
+    ═══════════════════════════════════════════════ */
+    .top-header {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(240, 244, 248, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 28px;
+      height: 60px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .header-left {
+      display: flex; align-items: center; gap: 16px;
+    }
+    .menu-toggle {
+      width: 34px; height: 34px;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      cursor: pointer; color: var(--t-secondary);
+      transition: all var(--transition);
+      font-size: 1rem;
+    }
+    .menu-toggle:hover { border-color: var(--c-cyan); color: var(--c-cyan); }
+    .page-title {
+      font-size: 1rem; font-weight: 700;
+      color: var(--t-primary); letter-spacing: -0.01em;
+    }
+    /* Breadcrumb visual */
+    .breadcrumb-trail {
+      font-size: 0.78rem; color: var(--t-muted); font-weight: 500;
+    }
+    .breadcrumb-trail span { color: var(--c-cyan); }
+
+    /* ═══════════════════════════════════════════════
+       CONTENEDOR DE PÁGINA
+    ═══════════════════════════════════════════════ */
+    .page-container {
+      padding: 28px;
+      flex-grow: 1;
+      /* Animación de entrada de vista */
+      animation: viewEnter 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    @keyframes viewEnter {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .section-header {
+      margin-bottom: 24px;
+    }
+    .section-title {
+      font-size: 1.25rem; font-weight: 700;
+      color: var(--t-primary); letter-spacing: -0.02em; margin: 0;
+    }
+    .section-desc {
+      font-size: 0.83rem; color: var(--t-muted); margin-top: 4px; font-weight: 400;
+    }
+
+    /* ═══════════════════════════════════════════════
+       CARDS GENÉRICAS
+    ═══════════════════════════════════════════════ */
+    .card {
+      background: var(--bg-surface) !important;
+      border: 1px solid var(--border) !important;
+      border-radius: var(--radius-lg) !important;
+      box-shadow: var(--shadow-xs) !important;
+      overflow: hidden;
+    }
+    .card-header {
+      background: var(--bg-surface) !important;
+      border-bottom: 1px solid var(--border) !important;
+      padding: 16px 20px !important;
+    }
+    .card-header h5, .card-title {
+      font-size: 0.92rem !important; font-weight: 700 !important;
+      color: var(--t-primary) !important; margin: 0;
+    }
+    .card-body { padding: 20px; }
+
+    /* Card con acento de color lateral */
+    .card-accent-cyan  { border-left: 4px solid var(--c-cyan) !important; }
+    .card-accent-green { border-left: 4px solid var(--c-green) !important; }
+    .card-accent-amber { border-left: 4px solid var(--c-amber) !important; }
+    .card-accent-navy  { border-left: 4px solid var(--c-navy) !important; }
+
+    /* Card con cabecera oscura */
+    .card-header-dark {
+      background: var(--c-navy) !important;
+      border-bottom: none !important;
+      padding: 14px 20px !important;
+    }
+    .card-header-dark .card-title, .card-header-dark h5 {
+      color: #fff !important; font-size: 0.88rem !important;
+    }
+
+    /* Card con cabecera cyan */
+    .card-header-cyan {
+      background: linear-gradient(135deg, var(--c-cyan) 0%, var(--c-cyan-hover) 100%) !important;
+      border-bottom: none !important;
+      padding: 14px 20px !important;
+    }
+    .card-header-cyan .card-title, .card-header-cyan h5 {
+      color: #fff !important; font-size: 0.88rem !important;
+    }
+
+    /* ═══════════════════════════════════════════════
+       DASHBOARD — KPI CARDS
+    ═══════════════════════════════════════════════ */
+    .welcome-banner {
+      background: linear-gradient(135deg, var(--c-navy) 0%, #0D2A40 100%);
+      border-radius: var(--radius-xl);
+      padding: 32px 36px;
+      color: #fff;
+      margin-bottom: 28px;
+      position: relative;
+      overflow: hidden;
+    }
+    .welcome-banner::before {
+      content: '';
+      position: absolute;
+      right: -60px; top: -60px;
+      width: 280px; height: 280px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0,180,216,0.18) 0%, transparent 70%);
+    }
+    .welcome-banner::after {
+      content: '';
+      position: absolute;
+      right: 80px; bottom: -80px;
+      width: 200px; height: 200px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0,180,216,0.10) 0%, transparent 70%);
+    }
+    .welcome-title {
+      font-size: 1.5rem; font-weight: 800;
+      letter-spacing: -0.03em; margin: 0;
+    }
+    .welcome-sub {
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.55);
+      margin-top: 6px; font-weight: 400;
+    }
+
+    .kpi-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 22px 24px;
+      display: flex; align-items: flex-start; gap: 16px;
+      box-shadow: var(--shadow-xs);
+      transition: all var(--transition);
+      cursor: default;
+    }
+    .kpi-card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+    }
+    .kpi-icon-wrap {
+      width: 48px; height: 48px; border-radius: var(--radius-md);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem; flex-shrink: 0;
+    }
+    .kpi-icon-cyan  { background: var(--c-cyan-dim); }
+    .kpi-icon-green { background: var(--c-green-dim); }
+    .kpi-icon-amber { background: var(--c-amber-dim); }
+    .kpi-label {
+      font-size: 0.73rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.06em; color: var(--t-muted); margin-bottom: 4px;
+    }
+    .kpi-value {
+      font-size: 1.9rem; font-weight: 800;
+      letter-spacing: -0.04em; line-height: 1;
+      color: var(--t-primary);
+    }
+    .kpi-trend {
+      font-size: 0.75rem; font-weight: 600; margin-top: 4px;
+      display: inline-flex; align-items: center; gap: 3px;
+    }
+    .kpi-trend.up { color: var(--c-green); }
+    .kpi-trend.neutral { color: var(--t-muted); }
+
+    /* ═══════════════════════════════════════════════
+       BOTONES
+    ═══════════════════════════════════════════════ */
+    .btn {
+      font-family: 'Plus Jakarta Sans', sans-serif !important;
+      font-weight: 600 !important; font-size: 0.825rem !important;
+      border-radius: var(--radius-sm) !important;
+      transition: all var(--transition) !important;
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn-primary {
+      background: var(--c-cyan) !important;
+      border-color: var(--c-cyan) !important; color: #fff !important;
+    }
+    .btn-primary:hover {
+      background: var(--c-cyan-hover) !important;
+      border-color: var(--c-cyan-hover) !important;
+      box-shadow: var(--shadow-cyan) !important;
+    }
+    .btn-success {
+      background: var(--c-green) !important;
+      border-color: var(--c-green) !important; color: #fff !important;
+    }
+    .btn-success:hover {
+      background: #0D9669 !important; border-color: #0D9669 !important;
+      box-shadow: 0 4px 16px rgba(16,185,129,0.3) !important;
+    }
+    .btn-outline-primary {
+      color: var(--c-cyan) !important; border-color: var(--c-cyan) !important;
+    }
+    .btn-outline-primary:hover {
+      background: var(--c-cyan) !important; color: #fff !important;
+      box-shadow: var(--shadow-cyan) !important;
+    }
+    .btn-outline-secondary { color: var(--t-secondary) !important; border-color: var(--border-strong) !important; }
+    .btn-outline-secondary:hover { background: var(--bg-surface2) !important; color: var(--t-primary) !important; }
+    .btn-outline-danger { color: var(--c-red) !important; border-color: rgba(239,68,68,0.3) !important; }
+    .btn-outline-danger:hover { background: var(--c-red-dim) !important; border-color: var(--c-red) !important; }
+    .btn-ghost {
+      background: transparent !important; border: none !important;
+      color: var(--t-secondary) !important;
+    }
+    .btn-ghost:hover { background: var(--bg-overlay) !important; color: var(--t-primary) !important; }
+
+    /* ═══════════════════════════════════════════════
+       BADGES Y CHIPS
+    ═══════════════════════════════════════════════ */
+    .badge-pill {
+      display: inline-flex; align-items: center;
+      padding: 3px 10px; border-radius: 99px;
+      font-size: 0.72rem; font-weight: 600; font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .badge-cyan    { background: var(--c-cyan-dim);  color: var(--c-cyan-hover); border: 1px solid rgba(0,180,216,0.2); }
+    .badge-green   { background: var(--c-green-dim); color: #059669; border: 1px solid rgba(16,185,129,0.2); }
+    .badge-amber   { background: var(--c-amber-dim); color: #D97706; border: 1px solid rgba(245,158,11,0.2); }
+    .badge-red     { background: var(--c-red-dim);   color: #DC2626; border: 1px solid rgba(239,68,68,0.2); }
+    .badge-neutral { background: var(--bg-overlay);  color: var(--t-secondary); border: 1px solid var(--border); }
+
+    /* Status dot */
+    .status-dot {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 0.78rem; font-weight: 500; color: var(--t-secondary);
+    }
+    .status-dot::before {
+      content: ''; width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+    }
+    .status-dot.active::before  { background: var(--c-green); box-shadow: 0 0 0 3px var(--c-green-dim); }
+    .status-dot.inactive::before { background: var(--t-muted); }
+
+    /* ═══════════════════════════════════════════════
+       TABLAS
+    ═══════════════════════════════════════════════ */
+    .table-wrap {
+      border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+      overflow: hidden;
+    }
+    .table-scroll {
+      overflow-x: auto; overflow-y: auto;
+      max-height: calc(100vh - 300px);
+    }
+    .data-table {
+      width: 100%; border-collapse: collapse;
+      font-size: 0.83rem;
+    }
+    .data-table thead tr th {
+      background: var(--bg-surface2) !important;
+      color: var(--t-muted) !important;
+      font-size: 0.7rem !important; font-weight: 700 !important;
+      text-transform: uppercase; letter-spacing: 0.07em;
+      padding: 11px 16px !important;
+      border-bottom: 1px solid var(--border) !important;
+      white-space: nowrap;
+      position: sticky; top: 0; z-index: 20;
+    }
+    .data-table tbody tr td {
+      padding: 13px 16px !important;
+      border-bottom: 1px solid var(--border) !important;
+      color: var(--t-primary);
+      vertical-align: middle;
+      background: var(--bg-surface) !important;
+      transition: background var(--transition);
+    }
+    .data-table tbody tr:last-child td { border-bottom: none !important; }
+    .data-table tbody tr:hover td { background: var(--c-cyan-dim) !important; }
+    .data-table tbody tr:hover td { cursor: default; }
+
+    .td-primary {
+      font-weight: 700 !important; color: var(--t-primary) !important;
+    }
+    .td-mono {
+      font-family: 'DM Mono', monospace; font-size: 0.78rem !important;
+      color: var(--c-cyan-hover) !important; font-weight: 500;
+    }
+    .td-muted { color: var(--t-muted) !important; font-size: 0.78rem !important; }
+
+    /* ═══════════════════════════════════════════════
+       FORMULARIOS
+    ═══════════════════════════════════════════════ */
+    .form-label {
+      font-size: 0.76rem !important; font-weight: 700 !important;
+      color: var(--t-secondary) !important;
+      text-transform: uppercase; letter-spacing: 0.05em;
+      margin-bottom: 6px !important;
+    }
+    .form-label.required::after {
+      content: ' *'; color: var(--c-red); font-size: 0.9em;
+    }
+    .form-control, .form-select {
+      font-family: 'Plus Jakarta Sans', sans-serif !important;
+      font-size: 0.875rem !important; font-weight: 500 !important;
+      border: 1.5px solid var(--border-strong) !important;
+      border-radius: var(--radius-sm) !important;
+      padding: 9px 13px !important;
+      color: var(--t-primary) !important;
+      background: var(--bg-surface) !important;
+      transition: all var(--transition) !important;
+    }
+    .form-control:focus, .form-select:focus {
+      border-color: var(--c-cyan) !important;
+      box-shadow: 0 0 0 3px rgba(0, 180, 216, 0.15) !important;
+      outline: none !important;
+    }
+    .form-control::placeholder { color: var(--t-muted) !important; font-weight: 400; }
+
+    /* Input con icono prefijo */
+    .input-group-text {
+      background: var(--bg-surface2) !important;
+      border: 1.5px solid var(--border-strong) !important;
+      border-right: none !important;
+      border-radius: var(--radius-sm) 0 0 var(--radius-sm) !important;
+      color: var(--t-muted) !important;
+      font-size: 0.85rem;
+    }
+    .input-group .form-control {
+      border-left: none !important;
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0 !important;
+    }
+    .input-group .form-control:focus {
+      box-shadow: 0 0 0 3px rgba(0, 180, 216, 0.15) !important;
+    }
+
+    /* Zona de configuración de select */
+    .catalog-zone {
+      background: var(--c-cyan-dim);
+      border: 1.5px dashed rgba(0,180,216,0.35);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+    }
+    .catalog-zone .form-label { color: var(--c-cyan-hover) !important; }
+
+    /* Switch toggle */
+    .toggle-row {
+      display: flex; align-items: center; gap: 12px;
+      background: var(--bg-surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 12px 16px;
+    }
+    .toggle-row label { margin: 0; font-size: 0.83rem; font-weight: 500; color: var(--t-primary); cursor: pointer; }
+    .form-check-input {
+      cursor: pointer !important;
+      width: 2.2em !important; height: 1.2em !important;
+      margin-top: 0 !important;
+    }
+    .form-check-input:checked { background-color: var(--c-cyan) !important; border-color: var(--c-cyan) !important; }
+
+    /* ═══════════════════════════════════════════════
+       TRAMITES — LISTA SIDEBAR
+    ═══════════════════════════════════════════════ */
+    .tramite-item {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 11px 14px;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all var(--transition);
+      border: 1px solid transparent;
+      margin-bottom: 3px;
+    }
+    .tramite-item:hover {
+      background: var(--c-cyan-dim);
+      border-color: rgba(0,180,216,0.2);
+    }
+    .tramite-item.active {
+      background: var(--c-cyan-dim);
+      border-color: rgba(0,180,216,0.35);
+    }
+    .tramite-item.active .tramite-name { color: var(--c-cyan-hover) !important; font-weight: 700; }
+    .tramite-name {
+      font-size: 0.84rem; font-weight: 600; color: var(--t-primary);
+      flex: 1;
+      /* texto completo — sin truncar */
+      white-space: normal;
+      word-break: break-word;
+      line-height: 1.4;
+    }
+    .tramite-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--border-strong); flex-shrink: 0;
+      margin-top: 5px; /* alinea con la primera línea de texto */
+      transition: background var(--transition);
+    }
+    .tramite-item.active .tramite-dot { background: var(--c-cyan); }
+
+    /* ── Modo colapsado: avatar de primera letra ── */
+    .tramite-letra-avatar {
+      width: 44px; height: 36px; border-radius: var(--radius-md);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.7rem; font-weight: 800; text-transform: uppercase;
+      letter-spacing: 0.04em;
+      background: var(--bg-overlay); border: 1.5px solid var(--border);
+      color: var(--t-secondary); cursor: pointer;
+      transition: all var(--transition);
+      margin: 0 auto 6px;
+      flex-shrink: 0;
+    }
+    .tramite-letra-avatar:hover {
+      background: var(--c-cyan-dim); border-color: rgba(0,180,216,0.35);
+      color: var(--c-cyan-hover);
+    }
+    .tramite-letra-avatar.active {
+      background: var(--c-cyan-dim); border-color: var(--c-cyan);
+      color: var(--c-cyan-hover);
+      box-shadow: 0 0 0 3px rgba(0,180,216,0.15);
+    }
+
+    /* ═══════════════════════════════════════════════
+       CRITERIOS — DISEÑADOR EAV
+    ═══════════════════════════════════════════════ */
+    .criterio-card {
+      background: var(--bg-surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-md);
+      margin-bottom: 8px;
+      transition: all var(--transition);
+      overflow: hidden;
+    }
+    .criterio-card:hover { border-color: var(--border-strong); box-shadow: var(--shadow-sm); }
+    .criterio-card.drag-ghost { opacity: 0.4; border: 2px dashed var(--c-cyan); }
+    .criterio-card.drag-over { border-top: 3px solid var(--c-cyan); }
+    
+    .criterio-header {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 14px;
+      cursor: pointer;
+    }
+    .criterio-body {
+      padding: 16px;
+      background: var(--bg-surface2);
+      border-top: 1px solid var(--border);
+    }
+    .criterio-index {
+      width: 24px; height: 24px; border-radius: 6px;
+      background: var(--bg-overlay); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.72rem; font-weight: 700; color: var(--t-muted);
+      flex-shrink: 0;
+    }
+    .criterio-label {
+      flex: 1; font-size: 0.855rem; font-weight: 600; color: var(--t-primary);
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .criterio-type-tag {
+      font-size: 0.7rem; font-weight: 600; padding: 2px 8px;
+      border-radius: 99px; background: var(--bg-overlay);
+      color: var(--t-muted); white-space: nowrap;
+      border: 1px solid var(--border);
+    }
+    .criterio-type-tag.type-tab    { background: rgba(16,185,129,0.1); color: #059669; border-color: rgba(16,185,129,0.2); }
+    .criterio-type-tag.type-titulo { background: rgba(11,25,41,0.08); color: var(--t-secondary); }
+    .criterio-type-tag.type-select { background: var(--c-cyan-dim); color: var(--c-cyan-hover); border-color: rgba(0,180,216,0.2); }
+    .criterio-type-tag.type-adjuntar { background: rgba(245,158,11,0.1); color: #B45309; border-color: rgba(245,158,11,0.25); }
+
+    /* ═══════════════════════════════════════════════
+       ADJUNTAR — ZONA DE CARGA DE ARCHIVOS
+    ═══════════════════════════════════════════════ */
+    .file-upload-zone {
+      border: 2px dashed var(--border-strong);
+      border-radius: var(--radius-md);
+      background: var(--bg-surface2);
+      transition: all var(--transition);
+      overflow: hidden;
+    }
+    .file-upload-zone:hover { border-color: var(--c-cyan); background: var(--c-cyan-dim); }
+    .file-upload-zone.estado-subiendo { border-color: var(--c-amber); background: var(--c-amber-dim); border-style: solid; }
+    .file-upload-zone.estado-listo    { border-color: var(--c-green); background: var(--c-green-dim); border-style: solid; }
+    .file-upload-zone.estado-error    { border-color: var(--c-red);   background: var(--c-red-dim);   border-style: solid; }
+
+    /* Área clickeable (label envuelve el input hidden) */
+    .file-upload-trigger {
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      padding: 22px 20px;
+      cursor: pointer;
+      text-align: center;
       flex-direction: column;
-      transition: margin-left 0.3s ease-in-out; /* NUEVO: Transición suave */
+    }
+    .file-upload-trigger input[type="file"] { display: none; }
+
+    .file-upload-icon {
+      font-size: 1.8rem; line-height: 1;
+    }
+    .file-upload-hint {
+      font-size: 0.8rem; color: var(--t-muted); font-weight: 500; margin-top: 2px;
+    }
+    .file-upload-hint strong { color: var(--c-cyan-hover); }
+
+    /* Estado: subiendo */
+    .file-status-row {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 18px;
+    }
+    .file-status-icon { font-size: 1.3rem; flex-shrink: 0; }
+    .file-status-name {
+      font-size: 0.85rem; font-weight: 600; color: var(--t-primary);
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1;
+    }
+    .file-status-sub {
+      font-size: 0.73rem; color: var(--t-muted); margin-top: 1px;
+    }
+    .file-spinner {
+      width: 18px; height: 18px; border-radius: 50%;
+      border: 2px solid rgba(245,158,11,0.3);
+      border-top-color: var(--c-amber);
+      animation: spin 0.75s linear infinite;
+      flex-shrink: 0;
+    }
+    .file-remove-btn {
+      background: none; border: none; cursor: pointer;
+      color: var(--t-muted); font-size: 1rem; padding: 2px 4px;
+      border-radius: 4px; flex-shrink: 0;
+      transition: all var(--transition);
+    }
+    .file-remove-btn:hover { background: var(--c-red-dim); color: var(--c-red); }
+
+    /* ═══════════════════════════════════════════════
+       CATÁLOGOS — TABLA
+    ═══════════════════════════════════════════════ */
+    .filter-bar {
+      padding: 14px 16px;
+      background: var(--bg-surface2);
+      border-bottom: 1px solid var(--border);
     }
 
-    /* NUEVO: Clase para cuando el contenido se expande */
-    .main-content.expandido {
-      margin-left: 0;
+    /* ═══════════════════════════════════════════════
+       TABS DE EVALUACIÓN
+    ═══════════════════════════════════════════════ */
+    .eval-tabs {
+      display: flex; gap: 4px;
+      background: var(--bg-surface2);
+      padding: 4px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+      width: fit-content;
+      margin-bottom: 24px;
+    }
+    .eval-tab-btn {
+      padding: 7px 18px;
+      border-radius: var(--radius-sm);
+      font-size: 0.8rem; font-weight: 600;
+      color: var(--t-muted); cursor: pointer;
+      transition: all var(--transition);
+      border: none; background: transparent;
+      white-space: nowrap;
+    }
+    .eval-tab-btn.active {
+      background: var(--bg-surface);
+      color: var(--c-cyan-hover);
+      box-shadow: var(--shadow-xs);
+    }
+    .eval-tab-btn:hover:not(.active) { color: var(--t-primary); }
+
+    /* ═══════════════════════════════════════════════
+       EMPTY STATE
+    ═══════════════════════════════════════════════ */
+    .empty-state {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 52px 24px; text-align: center;
+    }
+    .empty-icon {
+      width: 72px; height: 72px;
+      background: var(--bg-surface2);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-xl);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.8rem; margin-bottom: 16px;
+    }
+    .empty-title {
+      font-size: 0.95rem; font-weight: 700; color: var(--t-primary); margin-bottom: 6px;
+    }
+    .empty-desc {
+      font-size: 0.82rem; color: var(--t-muted); max-width: 300px; line-height: 1.6;
     }
 
+    /* ═══════════════════════════════════════════════
+       FORMULARIO DE EVALUACIÓN — PANEL SUPERIOR
+    ═══════════════════════════════════════════════ */
+    .eval-meta-bar {
+      background: var(--bg-surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 16px 20px;
+      margin-bottom: 24px;
+    }
+
+    /* ═══════════════════════════════════════════════
+       MODAL — SOBREESCRITURA
+    ═══════════════════════════════════════════════ */
+    .modal-content {
+      border: none !important;
+      border-radius: var(--radius-xl) !important;
+      box-shadow: var(--shadow-lg) !important;
+      overflow: hidden;
+    }
+    .modal-header {
+      background: var(--bg-surface2);
+      border-bottom: 1px solid var(--border) !important;
+      padding: 18px 24px !important;
+    }
+    .modal-title { font-size: 0.95rem !important; font-weight: 700 !important; color: var(--t-primary); }
+    .modal-body { padding: 24px !important; }
+    .modal-footer {
+      background: var(--bg-surface2);
+      border-top: 1px solid var(--border) !important;
+      padding: 14px 24px !important;
+    }
+
+    /* ═══════════════════════════════════════════════
+       LIST GROUP EN MODAL DE IMPORTAR
+    ═══════════════════════════════════════════════ */
+    .import-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 11px 14px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      margin-bottom: 6px;
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+    .import-item:hover { border-color: var(--c-cyan); background: var(--c-cyan-dim); }
+    .import-item-name { font-size: 0.84rem; font-weight: 600; color: var(--t-primary); }
+    .import-item-sub  { font-size: 0.73rem; color: var(--t-muted); margin-top: 1px; }
+
+    /* ═══════════════════════════════════════════════
+       DIVISOR DE SECCIÓN
+    ═══════════════════════════════════════════════ */
+    .section-divider {
+      margin: 20px 0;
+      border: none;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ═══════════════════════════════════════════════
+       SWEETALERT2 PERSONALIZADO
+    ═══════════════════════════════════════════════ */
+    .swal2-popup {
+      border-radius: var(--radius-xl) !important;
+      font-family: 'Plus Jakarta Sans', sans-serif !important;
+    }
+    .swal2-confirm { border-radius: var(--radius-sm) !important; font-weight: 700 !important; }
+    .swal2-cancel  { border-radius: var(--radius-sm) !important; font-weight: 600 !important; }
+
+    /* ═══════════════════════════════════════════════
+       BANNER SELECCIONA TRÁMITE
+    ═══════════════════════════════════════════════ */
+    .select-prompt {
+      background: var(--bg-surface);
+      border: 1.5px dashed var(--border-strong);
+      border-radius: var(--radius-lg);
+      padding: 52px;
+      text-align: center;
+    }
+    .select-prompt-icon { font-size: 2.5rem; margin-bottom: 12px; opacity: 0.4; }
+    .select-prompt-text { font-size: 0.88rem; color: var(--t-muted); font-weight: 500; }
+
+    /* ═══════════════════════════════════════════════
+       CATÁLOGOS — FORM CARD LATERAL
+    ═══════════════════════════════════════════════ */
+    .catalog-form-card {
+      border-radius: var(--radius-lg);
+      border: 1.5px solid var(--border);
+      background: var(--bg-surface);
+      overflow: hidden;
+    }
+    .catalog-form-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .catalog-form-header-dot {
+      width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+    }
+    .catalog-form-body { padding: 20px; }
+
+    /* ═══════════════════════════════════════════════
+       ORIGIN BADGES EN CATALOGOS
+    ═══════════════════════════════════════════════ */
+    .origin-floema   { background: var(--c-cyan-dim); color: var(--c-cyan-hover); border: 1px solid rgba(0,180,216,0.2); }
+    .origin-bitacora { background: rgba(11,25,41,0.07); color: var(--t-secondary); border: 1px solid var(--border); }
+    .origin-external { background: var(--c-amber-dim); color: #B45309; border: 1px solid rgba(245,158,11,0.2); }
+
+    /* ═══════════════════════════════════════════════
+       RESPONSIVE
+    ═══════════════════════════════════════════════ */
+    @media (max-width: 768px) {
+      .main-content { margin-left: 0; }
+      .sidebar { transform: translateX(calc(-1 * var(--sidebar-w))); }
+      .sidebar.movil-abierto { transform: translateX(0); }
+      .page-container { padding: 16px; }
+    }
   </style>
 </head>
 <body>
 
   <div id="app" v-cloak>
-    
-    <div v-if="vistaActual === 'Cargando'" class="d-flex justify-content-center align-items-center" style="height: 100vh; width: 100vw; position: fixed; background: white; z-index: 9999;">
-      <div class="text-center">
-        <div class="spinner-border mb-3" role="status" style="width: 3rem; height: 3rem; color: var(--floema-green-dark);"></div>
-        <h4>Inicializando Floema RNME...</h4>
-      </div>
+
+    <!-- ══════════════════════
+         SPLASH DE CARGA
+    ══════════════════════ -->
+    <div v-if="vistaActual === 'Cargando'" class="splash">
+      <img src="https://i.postimg.cc/851FknCQ/logo-Floema.png" class="splash-logo" alt="Floema">
+      <div class="splash-spinner"></div>
+      <p class="splash-text">Inicializando sistema&hellip;</p>
     </div>
 
+    <!-- ══════════════════════
+         SIDEBAR
+    ══════════════════════ -->
     <nav class="sidebar" v-if="vistaActual !== 'Cargando'" :class="{ 'colapsado': !menuPrincipalAbierto }">
-      <div class="sidebar-logo">
-        <img src="https://i.postimg.cc/851FknCQ/logo-Floema.png" alt="Logo Floema RNME">
-        
-        <div class="mt-3 text-center">
-          <div class="fw-bold" style="color: #A4D65E; font-size: 0.95rem; letter-spacing: 0.5px; text-shadow: 0px 1px 2px rgba(0,0,0,0.15);">
-            Gestión de Trámites
-          </div>
-          <div class="mt-2">
-            <span class="badge shadow-sm" style="background-color: #8BC34A; color: white; font-size: 0.70rem; padding: 4px 10px; border: 1px solid rgba(255,255,255,0.3); border-radius: 4px;">
-              🛡️ ADMIN
-            </span>
-          </div>
+
+      <!-- Cabecera: logo centrado + nombre + badge verde -->
+      <div class="sidebar-header">
+        <img src="https://i.postimg.cc/851FknCQ/logo-Floema.png" class="sidebar-logo-img" alt="Floema RNME">
+        <div class="sidebar-brand-name">Floema RNME</div>
+        <div class="sidebar-brand-sub">Gestión del RNME</div>
+        <div style="margin-top: 12px;">
+          <div class="role-badge">🛡️ ADMIN</div>
         </div>
       </div>
-      
+
+      <!-- Navegación: lista plana sin etiquetas de sección -->
       <div class="sidebar-nav">
-        <div class="px-4 mt-2 mb-2 text-uppercase small text-muted fw-bold" style="font-size: 0.75rem; letter-spacing: 1px;">Operación</div>
-        <a class="sidebar-link cursor-pointer" :class="{ 'active': vistaActual === 'MenuPrincipal' }" @click="actualizarDashboard()">📊 Dashboard</a>
-        <a class="sidebar-link cursor-pointer" :class="{ 'active': vistaActual === 'Evaluacion' }" @click="cambiarVista('Evaluacion')">📝 Iniciar Evaluación</a>
-        
-        <div class="px-4 mt-4 mb-2 text-uppercase small text-muted fw-bold" style="font-size: 0.75rem; letter-spacing: 1px;">Configuración</div>
-        <a class="sidebar-link cursor-pointer" :class="{ 'active': vistaActual === 'Admin' }" @click="cambiarVista('Admin')">⚙️ Diseñar Formularios</a>
-        <a class="sidebar-link cursor-pointer" :class="{ 'active': vistaActual === 'Catalogos' }" @click="cambiarVista('Catalogos')">📚 Definir Datos</a>
+        <div class="sidebar-nav-divider"></div>
+
+        <div class="nav-item" :class="{ active: vistaActual === 'MenuPrincipal' }" @click="actualizarDashboard()">
+          <span class="nav-icon">📊</span>
+          <span>Dashboard</span>
+        </div>
+        <div class="nav-item" :class="{ active: vistaActual === 'Evaluacion' }" @click="cambiarVista('Evaluacion')">
+          <span class="nav-icon">📝</span>
+          <span>Evaluaciones</span>
+        </div>
+        <div class="nav-item" :class="{ active: vistaActual === 'Admin' }" @click="cambiarVista('Admin')">
+          <span class="nav-icon">⚙️</span>
+          <span>Formularios</span>
+        </div>
+        <div class="nav-item" :class="{ active: vistaActual === 'Catalogos' }" @click="cambiarVista('Catalogos')">
+          <span class="nav-icon">📚</span>
+          <span>Catálogos</span>
+        </div>
+      </div>
+
+      <!-- Footer: email del usuario -->
+      <div class="sidebar-footer">
+        <div class="user-chip">
+          <div class="user-avatar">{{ userInitial }}</div>
+          <div class="user-email-text"><?= typeof userEmail !== 'undefined' ? userEmail : 'usuario@floema.py' ?></div>
+        </div>
       </div>
     </nav>
 
+    <!-- ══════════════════════
+         CONTENIDO PRINCIPAL
+    ══════════════════════ -->
     <main class="main-content" v-if="vistaActual !== 'Cargando'" :class="{ 'expandido': !menuPrincipalAbierto }">
       
+      <!-- Top Header -->
       <header class="top-header">
-        <div class="d-flex align-items-center gap-3">
-          <button class="btn btn-light border-0 shadow-sm px-2 py-1 fs-5 text-muted" 
-                  @click="menuPrincipalAbierto = !menuPrincipalAbierto" 
-                  title="Ocultar/Mostrar Menú Lateral">
-            ☰
-          </button>
-          <h3 class="m-0 fw-bold" style="color: var(--floema-green-dark);">{{ tituloVista }}</h3>
+        <div class="header-left">
+          <div class="menu-toggle" @click="menuPrincipalAbierto = !menuPrincipalAbierto" title="Menú">☰</div>
+          <div>
+            <div class="page-title">{{ tituloVista }}</div>
+          </div>
         </div>
-        <div class="d-flex align-items-center bg-light px-3 py-2 border rounded shadow-sm">
-          <span class="small text-muted me-2">👤</span>
-          <span class="fw-bold small"><?= typeof userEmail !== 'undefined' ? userEmail : 'Modo Desarrollo' ?></span>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div class="badge-pill badge-cyan mono">v2.0</div>
         </div>
-      </header>
       </header>
 
-      <div class="app-container">
-        
+      <div class="page-container">
+
+        <!-- ══════════════════════
+             VISTA: DASHBOARD
+        ══════════════════════ -->
         <div v-if="vistaActual === 'MenuPrincipal'">
-          <div class="row mb-4">
-            <div class="col-md-12">
-              <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
-                <div class="card-body p-5 bg-white">
-                  <h2 class="mb-3 text-dark">Bienvenido a Floema RNME</h2>
-                  <p class="text-muted fs-5">Utiliza el menú lateral para gestionar catálogos, configurar plantillas dinámicas o iniciar una evaluación.</p>
+          
+          <!-- Banner de bienvenida -->
+          <div class="welcome-banner">
+            <div style="position: relative; z-index: 1;">
+              <h2 class="welcome-title">Bienvenido al sistema RNME</h2>
+              <p class="welcome-sub">Registro Nacional de Maquinaria y Equipos · Gestión documental y evaluaciones dinámicas</p>
+            </div>
+          </div>
+
+          <!-- KPIs -->
+          <div class="row g-3 mb-4">
+            <div class="col-md-4">
+              <div class="kpi-card">
+                <div class="kpi-icon-wrap kpi-icon-cyan">📄</div>
+                <div>
+                  <div class="kpi-label">Trámites Activos</div>
+                  <div class="kpi-value">{{ tramitesLocales.length }}</div>
+                  <div class="kpi-trend neutral">Tipos de procedimiento</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="kpi-card">
+                <div class="kpi-icon-wrap kpi-icon-green">📚</div>
+                <div>
+                  <div class="kpi-label">Variables de Catálogo</div>
+                  <div class="kpi-value">{{ catalogosLocales.length }}</div>
+                  <div class="kpi-trend neutral">Datos definidos</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="kpi-card">
+                <div class="kpi-icon-wrap kpi-icon-amber">🔧</div>
+                <div>
+                  <div class="kpi-label">Módulos</div>
+                  <div class="kpi-value">4</div>
+                  <div class="kpi-trend up">Sistema operativo</div>
                 </div>
               </div>
             </div>
           </div>
-          
-          <div class="row g-4">
-            
+
+          <!-- Acceso rápido -->
+          <div class="row g-3">
             <div class="col-md-6">
-              <div class="card border-0 shadow-sm" style="border-left: 5px solid var(--floema-primary) !important;">
-                <div class="card-body d-flex justify-content-between align-items-center p-4">
-                  <div>
-                    <h6 class="text-muted text-uppercase fw-bold mb-2" style="letter-spacing: 1px;">Trámites Activos</h6>
-                    <h2 class="mb-0 fw-bold text-dark">{{ tramitesLocales.length }}</h2>
+              <div class="card card-accent-cyan" style="cursor: pointer;" @click="cambiarVista('Evaluacion')">
+                <div class="card-body" style="padding: 20px 24px;">
+                  <div style="display: flex; align-items: center; gap: 14px;">
+                    <div class="kpi-icon-wrap kpi-icon-cyan" style="width: 44px; height: 44px;">📝</div>
+                    <div>
+                      <div style="font-weight: 700; font-size: 0.9rem;">Nueva Evaluación</div>
+                      <div style="font-size: 0.78rem; color: var(--t-muted); margin-top: 2px;">Iniciar un proceso de evaluación documental</div>
+                    </div>
+                    <div style="margin-left: auto; color: var(--t-muted); font-size: 1.1rem;">→</div>
                   </div>
-                  <div class="fs-1 opacity-50">📄</div>
                 </div>
               </div>
             </div>
-
             <div class="col-md-6">
-              <div class="card border-0 shadow-sm" style="border-left: 5px solid var(--floema-secondary) !important;">
-                <div class="card-body d-flex justify-content-between align-items-center p-4">
-                  <div>
-                    <h6 class="text-muted text-uppercase fw-bold mb-2" style="letter-spacing: 1px;">Variables de Catálogo</h6>
-                    <h2 class="mb-0 fw-bold text-dark">{{ catalogosLocales.length }}</h2>
+              <div class="card card-accent-green" style="cursor: pointer;" @click="cambiarVista('Admin')">
+                <div class="card-body" style="padding: 20px 24px;">
+                  <div style="display: flex; align-items: center; gap: 14px;">
+                    <div class="kpi-icon-wrap kpi-icon-green" style="width: 44px; height: 44px;">⚙️</div>
+                    <div>
+                      <div style="font-weight: 700; font-size: 0.9rem;">Diseñar Formularios</div>
+                      <div style="font-size: 0.78rem; color: var(--t-muted); margin-top: 2px;">Configurar plantillas dinámicas EAV</div>
+                    </div>
+                    <div style="margin-left: auto; color: var(--t-muted); font-size: 1.1rem;">→</div>
                   </div>
-                  <div class="fs-1 opacity-50">📚</div>
                 </div>
               </div>
             </div>
-
           </div>
         </div>
 
+        <!-- ══════════════════════
+             VISTA: EVALUACIÓN
+        ══════════════════════ -->
         <div v-if="vistaActual === 'Evaluacion'">
-          <div class="d-flex justify-content-between align-items-center mb-4">
-            <h4 class="mb-0 text-secondary">📝 Gestión de Evaluaciones</h4>
-          </div>
+          
+          <div class="row g-3">
+            <!-- Panel de Trámites -->
+            <div :class="menuTramitesAbierto ? 'col-md-3' : 'col-auto'" style="transition: all 0.25s ease; min-width: 0;">
+              <div class="card" style="height: 100%;">
 
-          <div class="row">
-            <div :class="menuTramitesAbierto ? 'col-md-4' : 'col-md-auto'" style="transition: all 0.2s ease-in-out;">
-              <div class="card shadow-sm mb-3 border-0">
-                
-                <div class="card-header text-white d-flex align-items-center cursor-pointer" 
-                     :class="menuTramitesAbierto ? 'justify-content-between' : 'justify-content-center px-3'"
+                <!-- Cabecera del panel -->
+                <div class="card-header-dark"
+                     style="display: flex; align-items: center; justify-content: space-between; cursor: pointer;"
                      @click="menuTramitesAbierto = !menuTramitesAbierto"
-                     style="background-color: var(--floema-sidebar) !important;">
-                  <h5 class="mb-0 text-white text-nowrap" v-if="menuTramitesAbierto">1. Seleccione el Trámite</h5>
-                  <span class="fs-5" :class="menuTramitesAbierto ? 'ms-3' : ''">☰</span>
+                     :title="menuTramitesAbierto ? 'Colapsar panel' : 'Expandir panel'">
+                  <h5 v-if="menuTramitesAbierto" style="margin: 0;">Trámites</h5>
+                  <span style="color: rgba(255,255,255,0.7); font-size: 0.9rem; line-height: 1;">
+                    {{ menuTramitesAbierto ? '◀' : '▶' }}
+                  </span>
                 </div>
-                
-                <ul class="list-group list-group-flush" v-show="menuTramitesAbierto">
-                  <li v-if="tramitesLocales?.length === 0" class="list-group-item text-muted small text-center py-4">No hay trámites.</li>
-                  <li class="list-group-item list-group-item-action cursor-pointer d-flex justify-content-between align-items-center" 
-                      v-for="tramite in tramitesLocales" :key="tramite.id_tramite" 
-                      @click="seleccionarTramiteParaEvaluacion(tramite)" 
-                      :class="{ 'active': evaluacionActiva.tramite?.id_tramite === tramite.id_tramite }">
-                    <span class="fw-bold text-truncate me-2">{{ tramite.nombre_tramite }}</span>
-                    <span>▶️</span>
-                  </li>
-                </ul>
+
+                <!-- Estado EXPANDIDO: lista completa -->
+                <div class="card-body" style="padding: 12px;" v-show="menuTramitesAbierto">
+                  <div v-if="tramitesLocales.length === 0" class="empty-state" style="padding: 30px 16px;">
+                    <div class="empty-icon" style="width: 50px; height: 50px;">📭</div>
+                    <div class="empty-desc">Sin trámites registrados</div>
+                  </div>
+                  <div v-for="tramite in tramitesLocales" :key="tramite.id_tramite"
+                       class="tramite-item"
+                       :class="{ active: evaluacionActiva.tramite?.id_tramite === tramite.id_tramite }"
+                       @click="seleccionarTramiteParaEvaluacion(tramite)">
+                    <div class="tramite-dot"></div>
+                    <span class="tramite-name">{{ tramite.nombre_tramite }}</span>
+                  </div>
+                </div>
+
+                <!-- Estado COLAPSADO: columna de avatares con primera letra -->
+                <div style="padding: 10px 8px;" v-show="!menuTramitesAbierto">
+                  <div v-if="tramitesLocales.length === 0" style="text-align:center; padding: 12px 0; color: var(--t-muted); font-size: 1.2rem;">–</div>
+                  <div v-for="tramite in tramitesLocales" :key="tramite.id_tramite"
+                       class="tramite-letra-avatar"
+                       :class="{ active: evaluacionActiva.tramite?.id_tramite === tramite.id_tramite }"
+                       :title="tramite.nombre_tramite"
+                       @click="seleccionarTramiteParaEvaluacion(tramite)">
+                    {{ (tramite.nombre_tramite || '???').slice(0, 3) }}
+                  </div>
+                </div>
+
               </div>
             </div>
 
-            <div :class="menuTramitesAbierto ? 'col-md-8' : 'col'" v-if="evaluacionActiva.tramite" style="transition: all 0.2s ease-in-out;">
-              <div v-if="evaluacionActiva.cargando" class="text-center py-5">
-                <div class="spinner-border text-primary"></div>
-                <p class="mt-2 text-muted fw-bold">Cargando...</p>
+            <!-- Panel Principal -->
+            <div class="col" style="transition: all 0.25s ease; min-width: 0;">
+
+              <!-- Sin trámite seleccionado -->
+              <div v-if="!evaluacionActiva.tramite" class="select-prompt">
+                <div class="select-prompt-icon">←</div>
+                <div class="select-prompt-text">Selecciona un trámite del panel izquierdo para ver su historial o iniciar una evaluación.</div>
               </div>
 
-              <div class="card shadow-sm border-0" v-else-if="modoEvaluacion === 'lista'">
-                <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center" style="background-color: var(--floema-sidebar) !important;">
-                  <h5 class="mb-0 text-white">Registros: {{ evaluacionActiva.tramite?.nombre_tramite }}</h5>
-                  <button class="btn btn-sm btn-light text-dark fw-bold shadow-sm" @click="abrirFormularioNuevaEvaluacion">+ Nueva Evaluación</button>
+              <!-- Cargando -->
+              <div v-else-if="evaluacionActiva.cargando" class="card">
+                <div class="card-body">
+                  <div class="empty-state">
+                    <div class="splash-spinner" style="margin-bottom: 16px;"></div>
+                    <div class="empty-desc">Cargando datos del trámite...</div>
+                  </div>
                 </div>
-                <div class="card-body p-0">
-                  <div class="table-responsive" style="max-height: calc(100vh - 280px); overflow-y: auto;">
-                    <table class="table table-hover table-sm mb-0 align-middle">
-                      <thead class="table-light sticky-top shadow-sm">
+              </div>
+
+              <!-- MODO LISTA -->
+              <div class="card" v-else-if="modoEvaluacion === 'lista'">
+                <div class="card-header" style="display: flex; align-items: center; justify-content: space-between;">
+                  <div>
+                    <h5 class="card-title">{{ evaluacionActiva.tramite?.nombre_tramite }}</h5>
+                    <div style="font-size: 0.75rem; color: var(--t-muted); margin-top: 2px;">{{ listaEvaluaciones.length }} registro(s)</div>
+                  </div>
+                  <button class="btn btn-primary" @click="abrirFormularioNuevaEvaluacion">
+                    + Nueva Evaluación
+                  </button>
+                </div>
+                <div class="table-wrap">
+                  <div class="table-scroll">
+                    <table class="data-table">
+                      <thead>
                         <tr>
-                          <th class="ps-4">Expediente</th>
+                          <th>Expediente</th>
                           <th>Fecha</th>
                           <th>Evaluador</th>
-                          <th v-for="col in columnasDinamicasTabla" :key="col.id_criterio" style="color: var(--floema-primary);">
-                            {{ col.etiqueta_pregunta }}
-                          </th>
+                          <th v-for="col in columnasDinamicasTabla" :key="col.id_criterio">{{ col.etiqueta_pregunta }}</th>
                           <th>Puntuación</th>
-                          <th class="text-end pe-4">Acciones</th>
+                          <th style="text-align: right; padding-right: 20px !important;">Acciones</th>
                         </tr>
                       </thead>
                       <tbody>
                         <tr v-for="ev in listaEvaluaciones" :key="ev.id_evaluacion">
-                          <td class="fw-bold ps-4 text-dark">{{ ev.id_expediente }}</td>
-                          <td>{{ formatearFecha(ev.fecha_evaluacion) }}</td>
-                          <td class="small text-muted">{{ ev.email_evaluador }}</td>
-                          
+                          <td class="td-mono">{{ ev.id_expediente }}</td>
+                          <td class="td-muted">{{ formatearFecha(ev.fecha_evaluacion) }}</td>
+                          <td class="td-muted" style="max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ ev.email_evaluador }}</td>
                           <td v-for="col in columnasDinamicasTabla" :key="col.id_criterio">
-                             <span class="text-secondary fw-bold">{{ ev.respuestas && ev.respuestas[col.id_criterio] ? ev.respuestas[col.id_criterio] : '-' }}</span>
+                            <span style="font-weight: 600; color: var(--t-primary);">{{ ev.respuestas && ev.respuestas[col.id_criterio] ? ev.respuestas[col.id_criterio] : '—' }}</span>
                           </td>
-
-                          <td><span class="badge bg-info shadow-sm text-dark">{{ ev.puntuacion_total }} pts</span></td>
-                          <td class="text-end pe-4">
-                            <button class="btn btn-sm btn-outline-primary" @click="editarEvaluacion(ev)" title="Editar Evaluación">✏️</button>
+                          <td>
+                            <span class="badge-pill badge-cyan mono">{{ ev.puntuacion_total }} pts</span>
+                          </td>
+                          <td style="text-align: right; padding-right: 20px !important;">
+                            <button class="btn btn-outline-primary btn-sm" @click="editarEvaluacion(ev)" title="Editar">✏️ Editar</button>
                           </td>
                         </tr>
-                        <tr v-if="listaEvaluaciones?.length === 0">
-                          <td :colspan="5 + (columnasDinamicasTabla?.length || 0)" class="text-center py-5 text-muted">
-                            <div class="fs-1 mb-2">📭</div>
-                            No hay evaluaciones registradas.
+                        <tr v-if="listaEvaluaciones.length === 0">
+                          <td :colspan="5 + (columnasDinamicasTabla?.length || 0)" style="border: none !important; padding: 0 !important;">
+                            <div class="empty-state">
+                              <div class="empty-icon">📭</div>
+                              <div class="empty-title">Sin registros aún</div>
+                              <div class="empty-desc">Este trámite no tiene evaluaciones. Haz clic en "Nueva Evaluación" para comenzar.</div>
+                            </div>
                           </td>
                         </tr>
                       </tbody>
@@ -419,126 +1249,220 @@
                 </div>
               </div>
 
-              <div class="card shadow-sm border-secondary" v-else-if="modoEvaluacion === 'formulario'">
-                <div class="card-header bg-white border-bottom">
-                  <h5 class="mb-0" style="color: var(--floema-primary);">
-                    {{ evaluacionActiva.id_evaluacion ? '✏️ Editando Registro:' : '✨ Nueva Evaluación:' }} {{ evaluacionActiva.tramite?.nombre_tramite }}
-                  </h5>
+              <!-- MODO FORMULARIO -->
+              <div class="card" v-else-if="modoEvaluacion === 'formulario'">
+                <div class="card-header" style="display: flex; align-items: center; gap: 12px;">
+                  <button class="btn btn-ghost btn-sm" @click="modoEvaluacion = 'lista'" style="padding: 4px 8px; font-size: 0.9rem;">←</button>
+                  <div>
+                    <h5 class="card-title">{{ evaluacionActiva.id_evaluacion ? 'Editando Evaluación' : 'Nueva Evaluación' }}</h5>
+                    <div style="font-size: 0.75rem; color: var(--t-muted); margin-top: 1px;">{{ evaluacionActiva.tramite?.nombre_tramite }}</div>
+                  </div>
                 </div>
+
                 <div class="card-body">
-                  <div v-if="evaluacionActiva.criterios?.length === 0" class="alert alert-warning">
-                    ⚠️ Este trámite aún no tiene preguntas configuradas.<br><br>
-                    <button class="btn btn-sm btn-outline-secondary" @click="modoEvaluacion = 'lista'">Volver</button>
+                  <div v-if="evaluacionActiva.criterios?.length === 0" class="empty-state">
+                    <div class="empty-icon">⚠️</div>
+                    <div class="empty-title">Sin preguntas configuradas</div>
+                    <div class="empty-desc">Ve a "Diseñar Formularios" para añadir preguntas a este trámite.</div>
                   </div>
 
                   <form @submit.prevent="guardarEvaluacion" v-else>
-                    <div class="row g-3 mb-4 p-3 bg-light border rounded shadow-sm">
-                      <div class="col-md-4">
-                        <label class="form-label fw-bold text-dark small">ID Expediente <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control border-secondary" v-model="evaluacionActiva.id_expediente" placeholder="Ej. EXP-2024-001" required>
-                      </div>
-                      <div class="col-md-8">
-                        <label class="form-label fw-bold text-dark small">Observaciones Generales</label>
-                        <input type="text" class="form-control" v-model="evaluacionActiva.observaciones" placeholder="Anotaciones...">
+                    <!-- Meta del expediente -->
+                    <div class="eval-meta-bar">
+                      <div class="row g-3">
+                        <div class="col-md-4">
+                          <label class="form-label required">ID Expediente</label>
+                          <div class="input-group">
+                            <span class="input-group-text">🗂</span>
+                            <input type="text" class="form-control" v-model="evaluacionActiva.id_expediente" placeholder="Ej. EXP-2024-001" required>
+                          </div>
+                        </div>
+                        <div class="col-md-8">
+                          <label class="form-label">Observaciones</label>
+                          <input type="text" class="form-control" v-model="evaluacionActiva.observaciones" placeholder="Anotaciones generales...">
+                        </div>
                       </div>
                     </div>
 
-                    <ul class="nav nav-tabs mb-4" v-if="tabsEvaluacionConfigurados?.length > 1 || (tabsEvaluacionConfigurados?.length === 1 && tabsEvaluacionConfigurados[0]?.nombre !== 'General')">
-                      <li class="nav-item" v-for="tab in tabsEvaluacionConfigurados" :key="tab.nombre">
-                        <button class="nav-link fw-bold" :class="{ 'active': tabActivoEvaluacion === tab.nombre }" 
-                                @click="tabActivoEvaluacion = tab.nombre" type="button" 
-                                :style="tabActivoEvaluacion === tab.nombre ? 'color: var(--floema-primary); border-bottom-color: transparent;' : 'color: #6c757d;'">
-                          {{ tab.nombre }}
-                        </button>
-                      </li>
-                    </ul>
+                    <!-- Tabs dinámicas -->
+                    <div class="eval-tabs" v-if="tabsEvaluacionConfigurados?.length > 1">
+                      <button type="button"
+                              v-for="tab in tabsEvaluacionConfigurados" :key="tab.nombre"
+                              class="eval-tab-btn"
+                              :class="{ active: tabActivoEvaluacion === tab.nombre }"
+                              @click="tabActivoEvaluacion = tab.nombre">
+                        {{ tab.nombre }}
+                      </button>
+                    </div>
 
+                    <!-- Campos dinámicos -->
                     <template v-for="tab in tabsEvaluacionConfigurados" :key="tab.nombre">
-                      <div class="row g-4" v-show="tabActivoEvaluacion === tab.nombre">
+                      <div class="row g-3" v-show="tabActivoEvaluacion === tab.nombre">
                         <div v-for="(crit, index) in tab.campos" :key="index" :class="crit.ancho || 'col-md-12'">
-                          
-                          <div v-if="crit.tipo_input === 'titulo'" class="mt-2 mb-2">
-                            <h6 class="fw-bold text-uppercase border-bottom pb-2" style="color: var(--floema-sidebar); letter-spacing: 0.5px;">{{ crit.etiqueta_pregunta }}</h6>
+
+                          <div v-if="crit.tipo_input === 'titulo'" class="mt-2 mb-1">
+                            <div style="font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: var(--c-cyan-hover); border-bottom: 2px solid var(--c-cyan-dim); padding-bottom: 8px;">
+                              {{ crit.etiqueta_pregunta }}
+                            </div>
                           </div>
 
                           <template v-else>
-                            <label class="form-label fw-bold text-dark small">{{ crit.etiqueta_pregunta }}</label>
-                            
-                            <input v-if="crit.tipo_input === 'texto'" type="text" class="form-control bg-white" v-model="evaluacionActiva.respuestas[crit.id_criterio].valor">
-                            <input v-else-if="crit.tipo_input === 'numero'" type="number" class="form-control bg-white" v-model="evaluacionActiva.respuestas[crit.id_criterio].valor">
-                            <select v-else-if="crit.tipo_input === 'select'" class="form-select bg-white border-primary" v-model="evaluacionActiva.respuestas[crit.id_criterio].valor">
-                              <option value="">-- Seleccione una opción --</option>
+                            <label class="form-label">{{ crit.etiqueta_pregunta }}</label>
+                            <input v-if="crit.tipo_input === 'texto'" type="text" class="form-control" v-model="evaluacionActiva.respuestas[crit.id_criterio].valor" placeholder="Ingrese texto...">
+                            <input v-else-if="crit.tipo_input === 'numero'" type="number" class="form-control" v-model="evaluacionActiva.respuestas[crit.id_criterio].valor" placeholder="0">
+                            <select v-else-if="crit.tipo_input === 'select'" class="form-select" v-model="evaluacionActiva.respuestas[crit.id_criterio].valor">
+                              <option value="">— Seleccione —</option>
                               <option v-for="opcion in obtenerOpcionesCatalogo(crit.opciones_json)" :key="opcion" :value="opcion">{{ opcion }}</option>
                             </select>
                             <div v-else-if="crit.tipo_input === 'file'" class="input-group">
-                              <span class="input-group-text bg-white">🔗</span>
-                              <input type="url" class="form-control bg-white" v-model="evaluacionActiva.respuestas[crit.id_criterio].valor" placeholder="Pegue enlace de Drive...">
+                              <span class="input-group-text">🔗</span>
+                              <input type="url" class="form-control" v-model="evaluacionActiva.respuestas[crit.id_criterio].valor" placeholder="Enlace de Google Drive...">
                             </div>
+
+                            <!-- ── ADJUNTAR: subida real de archivo a Drive ── -->
+                            <div v-else-if="crit.tipo_input === 'adjuntar'">
+                              <div class="file-upload-zone"
+                                   :class="{
+                                     'estado-subiendo': evaluacionActiva.respuestas[crit.id_criterio].estado === 'subiendo',
+                                     'estado-listo':    evaluacionActiva.respuestas[crit.id_criterio].estado === 'listo',
+                                     'estado-error':    evaluacionActiva.respuestas[crit.id_criterio].estado === 'error'
+                                   }">
+
+                                <!-- Estado: vacío / seleccionar -->
+                                <label class="file-upload-trigger"
+                                       v-if="evaluacionActiva.respuestas[crit.id_criterio].estado === 'vacio'"
+                                       :for="'adjuntar_' + crit.id_criterio">
+                                  <div class="file-upload-icon">📎</div>
+                                  <div>
+                                    <div style="font-size: 0.84rem; font-weight: 600; color: var(--t-primary);">Haz clic para seleccionar</div>
+                                    <div class="file-upload-hint">PDF, DOCX, XLSX o TXT · <strong>máx. 5 MB</strong></div>
+                                  </div>
+                                  <input type="file"
+                                         :id="'adjuntar_' + crit.id_criterio"
+                                         accept=".pdf,.doc,.docx,.xlsx,.txt,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/plain"
+                                         @change="e => subirArchivo(crit.id_criterio, e)">
+                                </label>
+
+                                <!-- Estado: subiendo -->
+                                <div class="file-status-row" v-else-if="evaluacionActiva.respuestas[crit.id_criterio].estado === 'subiendo'">
+                                  <span class="file-status-icon">📄</span>
+                                  <div style="flex: 1; overflow: hidden;">
+                                    <div class="file-status-name">{{ evaluacionActiva.respuestas[crit.id_criterio].nombre }}</div>
+                                    <div class="file-status-sub">Subiendo a Google Drive...</div>
+                                  </div>
+                                  <div class="file-spinner"></div>
+                                </div>
+
+                                <!-- Estado: listo ✅ -->
+                                <div class="file-status-row" v-else-if="evaluacionActiva.respuestas[crit.id_criterio].estado === 'listo'">
+                                  <span class="file-status-icon">✅</span>
+                                  <div style="flex: 1; overflow: hidden;">
+                                    <div class="file-status-name">{{ evaluacionActiva.respuestas[crit.id_criterio].nombre }}</div>
+                                    <div class="file-status-sub" style="color: var(--c-green);">
+                                      Guardado en Drive ·
+                                      <a :href="'https://drive.google.com/file/d/' + evaluacionActiva.respuestas[crit.id_criterio].valor + '/view'"
+                                         target="_blank" style="color: var(--c-green); font-weight: 600; text-decoration: underline;">Ver archivo</a>
+                                    </div>
+                                  </div>
+                                  <button type="button" class="file-remove-btn" @click="limpiarArchivo(crit.id_criterio)" title="Reemplazar archivo">✕</button>
+                                </div>
+
+                                <!-- Estado: error ❌ -->
+                                <div class="file-status-row" v-else-if="evaluacionActiva.respuestas[crit.id_criterio].estado === 'error'">
+                                  <span class="file-status-icon">❌</span>
+                                  <div style="flex: 1; overflow: hidden;">
+                                    <div class="file-status-name" style="color: var(--c-red);">Error al subir el archivo</div>
+                                    <div class="file-status-sub">{{ evaluacionActiva.respuestas[crit.id_criterio].errorMsg || 'Inténtalo de nuevo.' }}</div>
+                                  </div>
+                                  <label :for="'adjuntar_retry_' + crit.id_criterio"
+                                         style="cursor: pointer; font-size: 0.75rem; font-weight: 600; color: var(--c-red); white-space: nowrap; text-decoration: underline;">
+                                    Reintentar
+                                    <input type="file" :id="'adjuntar_retry_' + crit.id_criterio"
+                                           accept=".pdf,.doc,.docx,.xlsx,.txt,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/plain"
+                                           style="display:none;"
+                                           @change="e => subirArchivo(crit.id_criterio, e)">
+                                  </label>
+                                </div>
+
+                              </div><!-- /file-upload-zone -->
+
+                              <!-- Aviso si no ingresó el ID de expediente aún -->
+                              <div v-if="!evaluacionActiva.id_expediente" style="margin-top: 6px; font-size: 0.73rem; color: var(--c-amber); font-weight: 600;">
+                                ⚠️ Ingresa el ID del Expediente antes de adjuntar.
+                              </div>
+                            </div><!-- /adjuntar -->
+
                           </template>
                         </div>
                       </div>
                     </template>
-                    
-                    <hr class="my-4">
-                    <div class="d-flex justify-content-end">
-                      <button type="button" class="btn btn-outline-secondary fw-bold me-2" @click="modoEvaluacion = 'lista'">Cancelar</button>
-                      <button type="submit" class="btn btn-success fw-bold px-5">💾 Registrar Evaluación</button>
+
+                    <hr class="section-divider" style="margin-top: 28px;">
+                    <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                      <button type="button" class="btn btn-outline-secondary" @click="modoEvaluacion = 'lista'">Cancelar</button>
+                      <button type="submit" class="btn btn-success">💾 Guardar Evaluación</button>
                     </div>
                   </form>
                 </div>
               </div>
-            </div>
-            
-            <div :class="menuTramitesAbierto ? 'col-md-8' : 'col'" v-else style="transition: all 0.2s ease-in-out;">
-              <div class="alert alert-info border-0 shadow-sm fs-5 text-center py-5">
-                ⬅️ Seleccione un Trámite del panel izquierdo para revisar su historial o iniciar una nueva evaluación.
-              </div>
+
             </div>
           </div>
         </div>
 
+        <!-- ══════════════════════
+             VISTA: ADMIN EAV
+        ══════════════════════ -->
         <div v-if="vistaActual === 'Admin'">
-          <div class="d-flex justify-content-between align-items-center mb-4">
-            <h4 class="mb-0 text-secondary"></h4>
-          </div>
 
-          <div class="row">
+          <div class="row g-3">
+            <!-- Lista de trámites -->
             <div class="col-md-4">
-              <div class="card shadow-sm mb-3 border-0">
-                <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
-                  <h5 class="mb-0 text-white">Diseño de Plantillas</h5>
-                  <button class="btn btn-sm btn-light text-dark fw-bold" @click="crearNuevoTramite">+ Nuevo</button>
+              <div class="card">
+                <div class="card-header" style="display: flex; align-items: center; justify-content: space-between;">
+                  <h5 class="card-title">Plantillas</h5>
+                  <button class="btn btn-primary btn-sm" @click="crearNuevoTramite">+ Nuevo</button>
                 </div>
-                <ul class="list-group list-group-flush">
-                  <li v-if="tramitesLocales.length === 0" class="list-group-item text-muted small text-center py-4">
-                    No hay trámites registrados.<br>Haz clic en <b>+ Nuevo</b>.
-                  </li>
-                  <li class="list-group-item list-group-item-action cursor-pointer d-flex justify-content-between align-items-center" 
-                      v-for="tramite in tramitesLocales" :key="tramite.id_tramite" 
-                      @click="seleccionarTramite(tramite)" 
-                      :class="{ 'active': tramiteSeleccionado?.id_tramite === tramite.id_tramite }">
-                    <span class="text-truncate me-2">{{ tramite.nombre_tramite }}</span>
-                    <button class="btn btn-sm" 
-                            :class="tramiteSeleccionado?.id_tramite === tramite.id_tramite ? 'btn-outline-light' : 'btn-outline-danger'" 
-                            @click.stop="eliminarTramite(tramite)" title="Eliminar Trámite">
-                      🗑️
-                    </button>
-                  </li>
-                </ul>
+                <div class="card-body" style="padding: 12px;">
+                  <div v-if="tramitesLocales.length === 0" class="empty-state" style="padding: 30px 16px;">
+                    <div class="empty-icon" style="width: 50px; height: 50px; font-size: 1.4rem;">📋</div>
+                    <div class="empty-title" style="font-size: 0.85rem;">Sin trámites</div>
+                    <div class="empty-desc" style="font-size: 0.78rem;">Clic en <strong>+ Nuevo</strong> para crear uno.</div>
+                  </div>
+                  <div v-for="tramite in tramitesLocales" :key="tramite.id_tramite"
+                       class="tramite-item"
+                       :class="{ active: tramiteSeleccionado?.id_tramite === tramite.id_tramite }"
+                       @click="seleccionarTramite(tramite)">
+                    <div class="tramite-dot"></div>
+                    <span class="tramite-name">{{ tramite.nombre_tramite }}</span>
+                    <button class="btn btn-outline-danger btn-sm"
+                            style="padding: 2px 7px; font-size: 0.7rem; flex-shrink: 0;"
+                            @click.stop="eliminarTramite(tramite)" title="Eliminar">🗑️</button>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div class="col-md-8" v-if="tramiteSeleccionado">
-              <div class="card shadow-sm border-primary">
-                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                  <h5 class="mb-0">Plantilla: {{ tramiteSeleccionado.nombre_tramite }}</h5>
+            <!-- Diseñador de plantilla -->
+            <div class="col-md-8">
+              <div v-if="!tramiteSeleccionado" class="select-prompt">
+                <div class="select-prompt-icon">←</div>
+                <div class="select-prompt-text">Selecciona o crea un trámite para configurar sus preguntas.</div>
+              </div>
+
+              <div class="card" v-else>
+                <div class="card-header-cyan" style="display: flex; align-items: center; justify-content: space-between;">
+                  <h5>{{ tramiteSeleccionado.nombre_tramite }}</h5>
+                  <span class="badge-pill" style="background: rgba(255,255,255,0.15); color: #fff; border-color: rgba(255,255,255,0.2);">{{ criteriosBorrador.length }} campo(s)</span>
                 </div>
-                
                 <div class="card-body">
-                  <p class="text-muted small mb-3">Añade las preguntas dinámicas. El sistema creará los inputs automáticamente.</p>
-                  
-                  <div v-for="(criterio, index) in criteriosBorrador" :key="index" 
-                       class="mb-3 border rounded shadow-sm overflow-hidden bg-light"
+                  <p style="font-size: 0.8rem; color: var(--t-muted); margin-bottom: 16px;">
+                    Añade y reordena los campos. Arrástralos para cambiar el orden.
+                  </p>
+
+                  <!-- Lista de criterios -->
+                  <div v-for="(criterio, index) in criteriosBorrador" :key="index"
+                       class="criterio-card"
                        draggable="true"
                        @dragstart="arrastrarInicio(index, $event)"
                        @dragend="arrastrarFin($event)"
@@ -546,267 +1470,271 @@
                        @dragleave="arrastrarFuera($event)"
                        @drop="arrastrarSoltar(index, $event)">
                     
-                    <div class="d-flex justify-content-between align-items-center p-3"
-                         :class="criterio._expanded ? 'bg-white border-bottom' : ''">
-                      
-                      <div class="d-flex align-items-center gap-3 overflow-hidden">
-                        <span class="cursor-move text-muted fs-5" title="Arrastrar para reordenar">⠿</span>
-                        <span class="badge bg-secondary rounded-pill px-3">{{ index + 1 }}</span>
-                        <span class="fw-bold text-dark text-truncate cursor-pointer" style="max-width: 300px;" @click="criterio._expanded = !criterio._expanded">
-                          {{ criterio.etiqueta_pregunta || 'Nueva Pregunta...' }}
-                        </span>
-                        <span class="badge" style="background-color: rgba(0, 151, 178, 0.1); color: var(--floema-primary);">
-                          {{ criterio.tipo_input }}
-                        </span>
-                      </div>
-
-                      <div class="d-flex align-items-center gap-2">
-                        <button class="btn btn-sm btn-outline-danger" @click.stop="eliminarCriterio(index)" title="Eliminar">🗑️</button>
-                        <button class="btn btn-sm btn-light text-muted border" @click="criterio._expanded = !criterio._expanded">
-                          {{ criterio._expanded ? '🔼' : '🔽' }}
+                    <div class="criterio-header" @click="criterio._expanded = !criterio._expanded">
+                      <span class="cursor-move" style="color: var(--t-muted); font-size: 1rem; user-select: none;">⠿</span>
+                      <div class="criterio-index">{{ index + 1 }}</div>
+                      <span class="criterio-label">{{ criterio.etiqueta_pregunta || 'Nuevo campo...' }}</span>
+                      <span class="criterio-type-tag"
+                            :class="{
+                              'type-tab':      criterio.tipo_input === 'tab',
+                              'type-titulo':   criterio.tipo_input === 'titulo',
+                              'type-select':   criterio.tipo_input === 'select',
+                              'type-adjuntar': criterio.tipo_input === 'adjuntar'
+                            }">
+                        {{ criterio.tipo_input }}
+                      </span>
+                      <div style="display: flex; gap: 6px; flex-shrink: 0; margin-left: 4px;">
+                        <button class="btn btn-outline-danger btn-sm" style="padding: 2px 7px;" @click.stop="eliminarCriterio(index)">🗑️</button>
+                        <button class="btn btn-outline-secondary btn-sm" style="padding: 2px 8px; font-size: 0.7rem;" @click.stop="criterio._expanded = !criterio._expanded">
+                          {{ criterio._expanded ? '▲' : '▼' }}
                         </button>
                       </div>
                     </div>
 
-                    <div class="p-3 bg-white" v-show="criterio._expanded">
+                    <div class="criterio-body" v-show="criterio._expanded">
                       <div class="row g-3">
                         <div class="col-md-4">
-                          <label class="form-label small fw-bold text-muted">Etiqueta / Título</label>
-                          <input type="text" class="form-control" v-model="criterio.etiqueta_pregunta" placeholder="Ej. Datos Generales">
+                          <label class="form-label">Etiqueta</label>
+                          <input type="text" class="form-control" v-model="criterio.etiqueta_pregunta" placeholder="Ej. Nombre del equipo">
                         </div>
                         <div class="col-md-4">
-                          <label class="form-label small fw-bold text-muted">Tipo de Elemento</label>
-                          <select class="form-select border-primary" v-model="criterio.tipo_input">
-                            <optgroup label="Estructura Visual">
+                          <label class="form-label">Tipo de elemento</label>
+                          <select class="form-select" v-model="criterio.tipo_input">
+                            <optgroup label="Estructura">
                               <option value="tab">🗂️ Pestaña (Agrupador)</option>
                               <option value="titulo">📌 Título de Sección</option>
                             </optgroup>
-                            <optgroup label="Campos de Entrada">
+                            <optgroup label="Campos de entrada">
                               <option value="texto">🔤 Texto Libre</option>
                               <option value="numero">🔢 Número</option>
                               <option value="select">🔽 Desplegable (Catálogo)</option>
-                              <option value="file">🔗 Subir Archivo (Drive)</option>
+                              <option value="file">🔗 Enlace/Archivo Drive</option>
+                              <option value="adjuntar">📎 Adjuntar Archivo (Subida)</option>
                             </optgroup>
                           </select>
                         </div>
-                        
                         <div class="col-md-4" v-if="criterio.tipo_input !== 'tab'">
-                          <label class="form-label small fw-bold text-muted">Ancho de Columna</label>
+                          <label class="form-label">Ancho de columna</label>
                           <select class="form-select" v-model="criterio.ancho">
-                            <option value="col-md-12">Fila Completa (100%)</option>
+                            <option value="col-md-12">Fila completa (100%)</option>
                             <option value="col-md-6">Mitad (50%)</option>
-                            <option value="col-md-4">Un Tercio (33%)</option>
-                            <option value="col-md-3">Un Cuarto (25%)</option>
+                            <option value="col-md-4">Tercio (33%)</option>
+                            <option value="col-md-3">Cuarto (25%)</option>
                           </select>
                         </div>
-                        
-                        <div class="col-md-12" v-if="criterio.tipo_input === 'select'">
-                          <div class="p-3 rounded" style="background-color: rgba(0, 151, 178, 0.05); border: 1px dashed var(--floema-primary);">
-                            <label class="form-label small fw-bold" style="color: var(--floema-primary)">Vincular a Categoría de Catálogo</label>
-                            <select class="form-select border-primary shadow-sm" v-model="criterio.opciones_json">
-                              <option value="">-- Seleccione una Categoría --</option>
+                        <div class="col-12" v-if="criterio.tipo_input === 'select'">
+                          <div class="catalog-zone">
+                            <label class="form-label">Categoría de catálogo vinculada</label>
+                            <select class="form-select" v-model="criterio.opciones_json">
+                              <option value="">— Seleccione categoría —</option>
                               <option v-for="cat in categoriasCatalogoUnicas" :key="cat" :value="cat">{{ cat }}</option>
                             </select>
                           </div>
                         </div>
-
-                        <div class="col-md-12 mt-3" v-if="criterio.tipo_input !== 'tab' && criterio.tipo_input !== 'titulo'">
-                          <div class="form-check form-switch p-3 rounded border bg-light">
-                            <input class="form-check-input ms-0 me-2" type="checkbox" v-model="criterio.mostrar_en_tabla" :id="'chk_mostrar_' + index" style="cursor: pointer;">
-                            <label class="form-check-label small fw-bold text-dark cursor-pointer" :for="'chk_mostrar_' + index">
-                              👁️ Mostrar esta respuesta como columna en la tabla del historial de evaluaciones.
+                        <div class="col-12" v-if="criterio.tipo_input !== 'tab' && criterio.tipo_input !== 'titulo'">
+                          <div class="toggle-row">
+                            <input class="form-check-input" type="checkbox" v-model="criterio.mostrar_en_tabla" :id="'chk_' + index">
+                            <label :for="'chk_' + index" style="cursor: pointer; font-size: 0.83rem; font-weight: 500; color: var(--t-primary);">
+                              👁️ Mostrar como columna en el historial de evaluaciones
                             </label>
                           </div>
                         </div>
-
                       </div>
                     </div>
                   </div>
 
-                  <div class="d-flex gap-2 mt-4">
-                    <button class="btn btn-outline-primary btn-sm fw-bold" @click="agregarCriterio">
-                      ➕ Agregar Nueva Pregunta
-                    </button>
-                    <button class="btn btn-outline-info btn-sm fw-bold" @click="abrirModalImportar" style="color: var(--floema-primary); border-color: var(--floema-primary);">
-                      📋 Importar de otra Plantilla
-                    </button>
+                  <!-- Acciones de la plantilla -->
+                  <div style="display: flex; gap: 8px; margin-top: 16px;">
+                    <button class="btn btn-outline-primary btn-sm" @click="agregarCriterio">➕ Agregar campo</button>
+                    <button class="btn btn-outline-secondary btn-sm" @click="abrirModalImportar">📋 Importar de plantilla</button>
                   </div>
-
                 </div>
-                
-                <div class="card-footer text-end bg-light border-top">
-                  <button class="btn btn-success fw-bold px-4" @click="guardarConfiguracionEAV">💾 Guardar Plantilla</button>
+
+                <div style="padding: 14px 20px; background: var(--bg-surface2); border-top: 1px solid var(--border); display: flex; justify-content: flex-end;">
+                  <button class="btn btn-success" @click="guardarConfiguracionEAV">💾 Guardar Plantilla</button>
                 </div>
               </div>
             </div>
-            
-            <div class="col-md-8" v-else>
-              <div class="alert alert-info border-0 shadow-sm">⬅️ Selecciona o crea un trámite a la izquierda para empezar a configurar sus preguntas.</div>
-            </div>
           </div>
 
+          <!-- Modal Importar -->
           <div class="modal fade" id="modalImportar" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-lg modal-dialog-centered">
-              <div class="modal-content border-0 shadow-lg" style="border-radius: 12px; overflow: hidden;">
-                <div class="modal-header bg-light border-bottom-0">
-                  <h5 class="modal-title fw-bold" style="color: var(--floema-primary);">📋 Importar Preguntas</h5>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">📋 Importar preguntas de otra plantilla</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body p-4">
-                  
+                <div class="modal-body">
                   <div class="mb-4">
-                    <label class="form-label fw-bold small text-muted">1. Selecciona el Trámite de Origen:</label>
-                    <select class="form-select border-secondary shadow-sm" v-model="importTramiteSeleccionado" @change="cargarPreguntasAImportar">
-                      <option value="">-- Elija un trámite para ver sus preguntas --</option>
-                      <option v-for="t in tramitesLocales.filter(x => x.id_tramite !== tramiteSeleccionado?.id_tramite)" :value="t.id_tramite" :key="t.id_tramite">
-                        {{ t.nombre_tramite }}
-                      </option>
+                    <label class="form-label">Trámite de origen</label>
+                    <select class="form-select" v-model="importTramiteSeleccionado" @change="cargarPreguntasAImportar">
+                      <option value="">— Seleccione un trámite —</option>
+                      <option v-for="t in tramitesLocales.filter(x => x.id_tramite !== tramiteSeleccionado?.id_tramite)" :value="t.id_tramite" :key="t.id_tramite">{{ t.nombre_tramite }}</option>
                     </select>
                   </div>
 
-                  <div v-if="cargandoImportacion" class="text-center py-4">
-                    <div class="spinner-border mb-2" style="color: var(--floema-primary);" role="status"></div>
-                    <p class="text-muted small">Cargando formulario de origen...</p>
+                  <div v-if="cargandoImportacion" class="empty-state" style="padding: 30px;">
+                    <div class="splash-spinner" style="margin-bottom: 12px;"></div>
+                    <div class="empty-desc">Cargando preguntas...</div>
                   </div>
 
                   <div v-if="!cargandoImportacion && preguntasAImportar.length > 0">
-                    <label class="form-label fw-bold small text-muted">2. Selecciona las preguntas a copiar:</label>
-                    <div class="list-group shadow-sm">
-                      <label class="list-group-item d-flex gap-3 align-items-center cursor-pointer list-group-item-action" v-for="(preg, idx) in preguntasAImportar" :key="idx">
-                        <input class="form-check-input flex-shrink-0 fs-5" type="checkbox" v-model="preg.seleccionada">
-                        <div class="d-flex flex-column">
-                          <span class="fw-bold text-dark">{{ preg.etiqueta_pregunta || 'Sin título' }}</span>
-                          <span class="small text-muted">Tipo: {{ preg.tipo_input }} <span v-if="preg.tipo_input === 'select'">({{ preg.opciones_json }})</span></span>
-                        </div>
-                      </label>
+                    <label class="form-label mb-3">Selecciona las preguntas a copiar</label>
+                    <div v-for="(preg, idx) in preguntasAImportar" :key="idx"
+                         class="import-item" @click="preg.seleccionada = !preg.seleccionada"
+                         :style="preg.seleccionada ? 'border-color: var(--c-cyan); background: var(--c-cyan-dim);' : ''">
+                      <input class="form-check-input" type="checkbox" v-model="preg.seleccionada" @click.stop>
+                      <div>
+                        <div class="import-item-name">{{ preg.etiqueta_pregunta || 'Sin título' }}</div>
+                        <div class="import-item-sub">{{ preg.tipo_input }}{{ preg.tipo_input === 'select' ? ' · ' + preg.opciones_json : '' }}</div>
+                      </div>
                     </div>
                   </div>
 
-                  <div v-if="!cargandoImportacion && importTramiteSeleccionado && preguntasAImportar.length === 0" class="alert alert-warning border-0 shadow-sm mt-3">
-                    ⚠️ Este trámite no tiene preguntas configuradas o la plantilla está vacía.
+                  <div v-if="!cargandoImportacion && importTramiteSeleccionado && preguntasAImportar.length === 0"
+                       style="background: var(--c-amber-dim); border: 1px solid rgba(245,158,11,0.25); border-radius: var(--radius-md); padding: 14px 16px; font-size: 0.83rem; color: #92400E;">
+                    ⚠️ Este trámite no tiene preguntas configuradas.
                   </div>
-
                 </div>
-                <div class="modal-footer bg-light border-top-0">
-                  <button type="button" class="btn btn-outline-secondary fw-bold" data-bs-dismiss="modal">Cancelar</button>
-                  <button type="button" class="btn btn-primary fw-bold" @click="ejecutarImportacion" :disabled="preguntasAImportar.filter(p => p.seleccionada).length === 0">
-                    📥 Importar Seleccionadas
+                <div class="modal-footer">
+                  <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                  <button class="btn btn-primary" @click="ejecutarImportacion" :disabled="preguntasAImportar.filter(p => p.seleccionada).length === 0">
+                    📥 Importar seleccionadas
                   </button>
                 </div>
               </div>
             </div>
           </div>
-          </div>
+        </div>
 
+        <!-- ══════════════════════
+             VISTA: CATÁLOGOS
+        ══════════════════════ -->
         <div v-if="vistaActual === 'Catalogos'">
-          <div class="row">
-            
-            <div class="col-md-4 mb-3">
-              <div class="card shadow-sm border-0" 
-                   :style="catalogoEnEdicion.id_catalogo ? 'border-top: 4px solid var(--floema-accent) !important;' : 'border-top: 4px solid var(--floema-secondary) !important;'">
-                <div class="card-header bg-white">
-                  <h5 class="mb-0 fw-bold" :style="catalogoEnEdicion.id_catalogo ? 'color: var(--floema-accent) !important;' : 'color: var(--floema-secondary) !important;'">
-                    {{ catalogoEnEdicion.id_catalogo ? '✏️ Editar Registro' : '✨ Nuevo Registro' }}
+          <div class="row g-3">
+
+            <!-- Formulario de catálogo -->
+            <div class="col-md-4">
+              <div class="catalog-form-card">
+                <div class="catalog-form-header">
+                  <div class="catalog-form-header-dot"
+                       :style="catalogoEnEdicion.id_catalogo ? 'background: var(--c-amber);' : 'background: var(--c-green);'">
+                  </div>
+                  <h5 style="font-size: 0.9rem; font-weight: 700; margin: 0; color: var(--t-primary);">
+                    {{ catalogoEnEdicion.id_catalogo ? 'Editando registro' : 'Nuevo registro' }}
                   </h5>
                 </div>
-                <div class="card-body">
-                  <p class="small text-muted mb-4">
-                    {{ catalogoEnEdicion.id_catalogo ? 'Modificando un registro existente de Floema.' : 'Agrega una nueva variable al diccionario del sistema.' }}
-                  </p>
-
+                <div class="catalog-form-body">
                   <div class="mb-3">
-                    <label class="form-label small fw-bold text-dark">Categoría (Agrupador)</label>
-                    <input type="text" class="form-control" v-model="catalogoEnEdicion.categoria" placeholder="Ej. TIPO_DOCUMENTO" list="categoriasSugeridas">
+                    <label class="form-label required">Categoría</label>
+                    <input type="text" class="form-control" v-model="catalogoEnEdicion.categoria"
+                           placeholder="Ej. TIPO_DOCUMENTO" list="categoriasSugeridas">
                     <datalist id="categoriasSugeridas">
                       <option v-for="cat in categoriasCatalogoUnicas" :key="cat" :value="cat"></option>
                     </datalist>
                   </div>
                   <div class="mb-3">
-                    <label class="form-label small fw-bold text-dark">Valor (Opción a mostrar)</label>
+                    <label class="form-label required">Valor</label>
                     <input type="text" class="form-control" v-model="catalogoEnEdicion.valor" placeholder="Ej. Cédula de Identidad">
                   </div>
                   <div class="mb-4">
-                    <label class="form-label small fw-bold text-dark">Estado</label>
+                    <label class="form-label">Estado</label>
                     <select class="form-select" v-model="catalogoEnEdicion.estado">
                       <option value="Activo">Activo</option>
                       <option value="Inactivo">Inactivo</option>
                     </select>
                   </div>
-                  
-                  <div class="d-flex justify-content-between gap-2">
-                    <button class="btn btn-outline-secondary w-50" @click="limpiarFormularioCatalogo" v-if="catalogoEnEdicion.id_catalogo">Cancelar</button>
-                    <button class="btn btn-primary w-100" @click="guardarItemCatalogo">
-                      {{ catalogoEnEdicion.id_catalogo ? '💾 Actualizar' : '💾 Guardar Nuevo' }}
+                  <div style="display: flex; gap: 8px;">
+                    <button v-if="catalogoEnEdicion.id_catalogo" class="btn btn-outline-secondary" style="flex: 1;" @click="limpiarFormularioCatalogo">Cancelar</button>
+                    <button class="btn btn-primary" style="flex: 2;" @click="guardarItemCatalogo">
+                      {{ catalogoEnEdicion.id_catalogo ? '💾 Actualizar' : '💾 Guardar nuevo' }}
                     </button>
                   </div>
                 </div>
               </div>
             </div>
 
+            <!-- Tabla de catálogos -->
             <div class="col-md-8">
-              <div class="card shadow-sm border-0">
-                <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center" style="background-color: var(--floema-sidebar) !important;">
-                  <h5 class="mb-0 text-white">Registros Existentes</h5>
-                  <span class="badge bg-light text-dark rounded-pill px-3 shadow-sm">Total: {{ catalogosFiltrados.length }}</span>
+              <div class="card">
+                <div class="card-header" style="display: flex; align-items: center; justify-content: space-between;">
+                  <h5 class="card-title">Registros del diccionario</h5>
+                  <span class="badge-pill badge-neutral mono">{{ catalogosFiltrados.length }} items</span>
                 </div>
-                
-                <div class="card-body p-0">
-                  <div class="p-3 bg-light border-bottom">
-                    <div class="row g-2">
-                      <div class="col-md-4">
-                        <select class="form-select border-secondary shadow-sm" v-model="filtroOrigen">
-                          <option value="Todos">🌍 Todos los Orígenes</option>
-                          <option value="Floema">🌱 Solo Floema</option>
-                          <option value="Bitacora">🏛️ Solo Bitácora</option>
-                          <option value="Sistema Externo">🔗 Sistema Externo</option>
-                        </select>
-                      </div>
-                      <div class="col-md-4">
-                        <select class="form-select border-secondary shadow-sm" v-model="filtroCategoria">
-                          <option value="">📁 Todas las Categorías</option>
-                          <option v-for="cat in categoriasCatalogoUnicas" :key="cat" :value="cat">{{ cat }}</option>
-                        </select>
-                      </div>
-                      <div class="col-md-4">
-                        <input type="text" class="form-control border-secondary shadow-sm" v-model="filtroCatalogo" placeholder="🔍 Buscar texto o valor...">
+
+                <!-- Barra de filtros -->
+                <div class="filter-bar">
+                  <div class="row g-2">
+                    <div class="col-md-4">
+                      <select class="form-select" v-model="filtroOrigen" style="font-size: 0.81rem !important; padding: 7px 11px !important;">
+                        <option value="Todos">🌍 Todos los orígenes</option>
+                        <option value="Floema">🌱 Solo Floema</option>
+                        <option value="Bitacora">🏛️ Solo Bitácora</option>
+                        <option value="Sistema Externo">🔗 Sistema externo</option>
+                      </select>
+                    </div>
+                    <div class="col-md-4">
+                      <select class="form-select" v-model="filtroCategoria" style="font-size: 0.81rem !important; padding: 7px 11px !important;">
+                        <option value="">📁 Todas las categorías</option>
+                        <option v-for="cat in categoriasCatalogoUnicas" :key="cat" :value="cat">{{ cat }}</option>
+                      </select>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="input-group">
+                        <span class="input-group-text" style="font-size: 0.8rem;">🔍</span>
+                        <input type="text" class="form-control" v-model="filtroCatalogo"
+                               placeholder="Buscar..." style="font-size: 0.81rem !important; padding: 7px 11px !important;">
                       </div>
                     </div>
                   </div>
-                  
-                  <div class="table-responsive" style="max-height: calc(100vh - 380px); overflow-y: auto;">
-                    <table class="table table-hover table-sm mb-0 align-middle">
-                      <thead class="table-light sticky-top shadow-sm" style="z-index: 10;">
+                </div>
+
+                <div class="table-wrap">
+                  <div class="table-scroll" style="max-height: calc(100vh - 360px);">
+                    <table class="data-table">
+                      <thead>
                         <tr>
-                          <th class="ps-4">Categoría</th>
+                          <th>Categoría</th>
                           <th>Valor</th>
                           <th>Origen</th>
                           <th>Estado</th>
-                          <th class="text-end pe-4">Acciones</th>
+                          <th style="text-align: right; padding-right: 20px !important;">Acciones</th>
                         </tr>
                       </thead>
                       <tbody>
                         <tr v-for="item in catalogosFiltrados" :key="item.id_catalogo">
-                          <td class="fw-bold ps-4 text-dark">{{ item.categoria }}</td>
+                          <td class="td-primary">{{ item.categoria }}</td>
                           <td>{{ item.valor }}</td>
                           <td>
-                            <span class="badge" 
-                                  :class="{'bg-info text-dark': item.origen === 'Floema', 'bg-secondary': item.origen === 'Bitacora', 'bg-warning text-dark': item.origen === 'Sistema Externo'}" 
-                                  :style="item.origen === 'Floema' ? 'background-color: rgba(0, 151, 178, 0.2) !important;' : ''">
+                            <span class="badge-pill"
+                                  :class="{
+                                    'origin-floema':   !item.origen || item.origen === 'Floema',
+                                    'origin-bitacora': item.origen === 'Bitacora',
+                                    'origin-external': item.origen === 'Sistema Externo'
+                                  }">
                               {{ item.origen || 'Floema' }}
                             </span>
                           </td>
                           <td>
-                            <span :class="item.estado === 'Activo' ? 'text-success' : 'text-danger'">●</span> <span class="small">{{ item.estado }}</span>
+                            <span class="status-dot" :class="item.estado === 'Activo' ? 'active' : 'inactive'">
+                              {{ item.estado }}
+                            </span>
                           </td>
-                          <td class="text-end pe-4">
-                            <button class="btn btn-sm btn-outline-primary me-2" @click="editarItemCatalogo(item)" :disabled="item.origen === 'Bitacora'" title="Editar">✏️</button>
-                            <button class="btn btn-sm btn-outline-danger" @click="eliminarItemCatalogo(item)" :disabled="item.origen === 'Bitacora'" title="Eliminar">🗑️</button>
+                          <td style="text-align: right; padding-right: 16px !important;">
+                            <button class="btn btn-outline-primary btn-sm me-1" @click="editarItemCatalogo(item)"
+                                    :disabled="item.origen === 'Bitacora'">✏️</button>
+                            <button class="btn btn-outline-danger btn-sm" @click="eliminarItemCatalogo(item)"
+                                    :disabled="item.origen === 'Bitacora'">🗑️</button>
                           </td>
                         </tr>
                         <tr v-if="catalogosFiltrados.length === 0">
-                          <td colspan="5" class="text-center py-5 text-muted">
-                            <div class="fs-1 mb-2">📭</div>
-                            No se encontraron registros para estos filtros.
+                          <td colspan="5" style="border: none !important; padding: 0 !important;">
+                            <div class="empty-state">
+                              <div class="empty-icon">📭</div>
+                              <div class="empty-title">Sin resultados</div>
+                              <div class="empty-desc">No se encontraron registros para los filtros aplicados.</div>
+                            </div>
                           </td>
                         </tr>
                       </tbody>
@@ -819,648 +1747,495 @@
           </div>
         </div>
 
-      </div>
+      </div><!-- /page-container -->
     </main>
 
-  </div>
+  </div><!-- /app -->
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.0/dist/sweetalert2.all.min.js"></script>
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 
   <script>
-      const gasRun = (serverMethod, ...args) => {
-        return new Promise((resolve, reject) => {
-          if (typeof google === 'undefined') {
-            console.warn("Entorno local detectado. Simulando respuesta de GAS.");
-            setTimeout(() => resolve({ catalogos: [], tramites: [], config: [] }), 1000);
-            return;
-          }
-          Swal.fire({ title: 'Procesando...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-          
-          google.script.run
-            .withSuccessHandler((result) => { 
-              // Parche: Un pequeño retraso garantiza que Swal detecte la orden de cierre
-              setTimeout(() => { Swal.close(); resolve(result); }, 150); 
-            })
-            .withFailureHandler((error) => { 
-              Swal.fire('Error', error.message, 'error'); 
-              reject(error); 
-            })
-            [serverMethod](...args);
-        });
-      };
-
-      const { createApp, ref, onMounted, computed } = Vue;
-
-      createApp({
-        setup() {
-          // ==========================================
-          // 1. ESTADO GLOBAL
-          // ==========================================
-          const vistaActual = ref('Cargando');
-
-          const menuPrincipalAbierto = ref(true); // Controla el Sidebar General
-
-          const tramitesLocales = ref([]);
-          const catalogosLocales = ref([]); 
-
-          // Lógica UI: Título del Top Header Dinámico
-          const tituloVista = computed(() => {
-            switch(vistaActual.value) {
-              case 'MenuPrincipal': return '📊 Panel de Control';
-              case 'Evaluacion': return '📝 Evaluación Documental';
-              case 'Admin': return '⚙️ Formularios';
-              case 'Catalogos': return '📚 Diccionario de Datos';
-              default: return 'Floema RNME';
-            }
-          });
-
-          // ==========================================
-          // 2. LÓGICA ADMIN EAV (PRODUCCIÓN)
-          // ==========================================
-          const tramiteSeleccionado = ref(null);
-          const criteriosBorrador = ref([]);
-
-          // ---> NUEVO: Guarda el Trámite real en la BD
-          const crearNuevoTramite = async () => {
-            const { value: nombreTramite } = await Swal.fire({
-              title: '✨ Nuevo Trámite',
-              input: 'text',
-              inputLabel: 'Descripción o Nombre del Trámite',
-              inputPlaceholder: 'Ej. Homologación de Equipos Psicométricos',
-              showCancelButton: true,
-              confirmButtonColor: 'var(--floema-primary)',
-              cancelButtonColor: '#718096',
-              confirmButtonText: 'Crear Trámite',
-              cancelButtonText: 'Cancelar',
-              inputValidator: (value) => {
-                if (!value || value.trim() === '') {
-                  return 'Debe ingresar una descripción para continuar.';
-                }
-              }
-            });
-
-            if (nombreTramite) {
-              try {
-                // Llamamos al Backend para guardar en CFG_TRAMITES
-                const response = await gasRun('apiGuardarTramite', nombreTramite);
-                if (response && response.success) {
-                  tramitesLocales.value.push(response.tramite); // Lo añadimos a la lista visual
-                  seleccionarTramite(response.tramite); // Lo seleccionamos automáticamente
-                  
-                  Swal.fire({
-                    toast: true, position: 'top-end', icon: 'success', 
-                    title: 'Trámite creado', showConfirmButton: false, timer: 2000
-                  });
-                }
-              } catch (error) {}
-            }
-          };
-
-          // ---> NUEVO: Elimina el Trámite de la BD
-          const eliminarTramite = async (tramite) => {
-            const confirmacion = await Swal.fire({
-              title: '¿Eliminar Trámite?',
-              text: `Borrarás el trámite "${tramite.nombre_tramite}".`,
-              icon: 'warning',
-              showCancelButton: true,
-              confirmButtonColor: '#d33',
-              cancelButtonColor: '#718096',
-              confirmButtonText: 'Sí, eliminar'
-            });
-
-            if (confirmacion.isConfirmed) {
-              try {
-                await gasRun('apiEliminarTramite', tramite.id_tramite);
-                
-                // Actualizamos la UI reactivamente
-                tramitesLocales.value = tramitesLocales.value.filter(t => t.id_tramite !== tramite.id_tramite);
-                if (tramiteSeleccionado.value?.id_tramite === tramite.id_tramite) {
-                  tramiteSeleccionado.value = null; // Limpiamos el panel derecho
-                  criteriosBorrador.value = [];
-                }
-                
-                Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Trámite eliminado', showConfirmButton: false, timer: 2000 });
-              } catch (error) {}
-            }
-          };
-
-          const seleccionarTramite = async (tramite) => {
-            tramiteSeleccionado.value = tramite;
-            criteriosBorrador.value = []; 
-            
-            try {
-              const response = await gasRun('apiObtenerCriteriosTramite', tramite.id_tramite);
-              if (response && response.criterios && response.criterios.length > 0) {
-                // Volcamos las preguntas guardadas
-                criteriosBorrador.value = response.criterios.map(c => ({
-                  tipo_input: c.tipo_input,
-                  etiqueta_pregunta: c.etiqueta_pregunta,
-                  opciones_json: c.opciones_json || '',
-                  ancho: c.ancho || 'col-md-12',
-                  mostrar_en_tabla: c.mostrar_en_tabla === true || String(c.mostrar_en_tabla).trim().toLowerCase() === 'true',
-                  _expanded: false
-                }));
-              }
-            } catch (error) {
-              console.error("Error al cargar criterios:", error);
-            }
-          };
-
-          const guardarConfiguracionEAV = async () => {
-            if (!tramiteSeleccionado.value) {
-              return Swal.fire('Error', 'Debe seleccionar un trámite primero.', 'error');
-            }
-            if (criteriosBorrador.value.length === 0) {
-              return Swal.fire('Aviso', 'Debe añadir al menos una pregunta al formulario.', 'warning');
-            }
-
-            // Validación: Ninguna pregunta puede tener el título vacío
-            const hayPreguntasVacias = criteriosBorrador.value.some(c => c.etiqueta_pregunta.trim() === '');
-            if (hayPreguntasVacias) {
-              return Swal.fire('Atención', 'Todas las preguntas deben tener una Etiqueta / Título definido.', 'warning');
-            }
-
-            try {
-              // Preparamos el paquete de datos
-              const payload = {
-                tramite: tramiteSeleccionado.value,
-                criterios: criteriosBorrador.value
-              };
-
-              // Enviamos a producción
-              const response = await gasRun('apiGuardarConfiguracionEAV', payload);
-              
-              if (response && response.success) {
-                Swal.fire({
-                  title: '¡Formulario Guardado!',
-                  text: 'La plantilla dinámica se ha registrado correctamente en producción.',
-                  icon: 'success',
-                  confirmButtonColor: 'var(--floema-secondary)'
-                });
-              }
-            } catch (error) {
-              // gasRun ya maneja el SweetAlert de error
-            }
-          };
-
-          const agregarCriterio = () => {
-            criteriosBorrador.value.push({ 
-              tipo_input: 'texto', 
-              etiqueta_pregunta: '', 
-              opciones_json: '',
-              ancho: 'col-md-12', // Valor por defecto añadido
-              mostrar_en_tabla: false,
-              _expanded: true 
-            });
-          };
-
-          const eliminarCriterio = (index) => { criteriosBorrador.value.splice(index, 1); };
-
-          // ==========================================
-          // DRAG AND DROP (REORDENAMIENTO EAV)
-          // ==========================================
-          const dragIndex = ref(null);
-
-          const arrastrarInicio = (index, event) => {
-            dragIndex.value = index;
-            event.dataTransfer.effectAllowed = 'move';
-            setTimeout(() => event.target.classList.add('drag-ghost'), 0);
-          };
-
-          const arrastrarFin = (event) => {
-            event.target.classList.remove('drag-ghost');
-            dragIndex.value = null;
-          };
-
-          const arrastrarSobre = (event) => {
-            event.currentTarget.classList.add('drag-over');
-          };
-
-          const arrastrarFuera = (event) => {
-            event.currentTarget.classList.remove('drag-over');
-          };
-
-          const arrastrarSoltar = (dropIndex, event) => {
-            event.currentTarget.classList.remove('drag-over');
-            
-            // Si lo soltamos en una posición diferente a la original
-            if (dragIndex.value !== null && dragIndex.value !== dropIndex) {
-              const itemArrastrado = criteriosBorrador.value.splice(dragIndex.value, 1)[0];
-              criteriosBorrador.value.splice(dropIndex, 0, itemArrastrado);
-            }
-          };
-
-          // ==========================================
-          // 3. ESTADO Y LÓGICA: CRUD CATÁLOGOS
-          // ==========================================
-          const filtroCatalogo = ref('');
-          const filtroCategoria = ref(''); 
-          const filtroOrigen = ref('Floema'); // NUEVO: Valor por defecto "Floema"
-          const catalogoEnEdicion = ref({ categoria: '', valor: '', estado: 'Activo', origen: 'Floema' });
-
-          const categoriasCatalogoUnicas = computed(() => {
-            if (!catalogosLocales.value || catalogosLocales.value.length === 0) return [];
-            const categorias = catalogosLocales.value.map(c => c.categoria);
-            return [...new Set(categorias)].filter(Boolean).sort(); 
-          });
-
-          // Filtro Combinado: Origen + Categoría + Texto
-          const catalogosFiltrados = computed(() => {
-            return catalogosLocales.value.filter(item => {
-              // 1. Validar Origen (Asumimos "Floema" si viene vacío de la base de datos)
-              const origenReal = item.origen || 'Floema';
-              const coincideOrigen = filtroOrigen.value === 'Todos' || origenReal === filtroOrigen.value;
-
-              // 2. Validar Categoría
-              const coincideCategoria = filtroCategoria.value === '' || item.categoria === filtroCategoria.value;
-              
-              // 3. Validar Texto
-              const termino = filtroCatalogo.value.toLowerCase();
-              const coincideTexto = termino === '' || 
-                (item.categoria && item.categoria.toLowerCase().includes(termino)) ||
-                (item.valor && item.valor.toLowerCase().includes(termino));
-              
-              return coincideOrigen && coincideCategoria && coincideTexto;
-            });
-          });
-
-          const limpiarFormularioCatalogo = () => {
-            catalogoEnEdicion.value = { categoria: '', valor: '', estado: 'Activo', origen: 'Floema' };
-          };
-
-          const editarItemCatalogo = (item) => { 
-            // Solo permite editar lo que se creó nativamente en Floema
-            if (item.origen === 'Floema' || !item.origen) {
-              catalogoEnEdicion.value = JSON.parse(JSON.stringify(item)); 
-            }
-          };
-
-          const guardarItemCatalogo = async () => {
-            if (!catalogoEnEdicion.value.categoria || !catalogoEnEdicion.value.valor) {
-              return Swal.fire('Error', 'La Categoría y el Valor son obligatorios', 'warning');
-            }
-            
-            // Forzamos el origen visualmente a Floema
-            if (!catalogoEnEdicion.value.origen || catalogoEnEdicion.value.origen === '') {
-              catalogoEnEdicion.value.origen = 'Floema';
-            }
-
-            try {
-              const respuesta = await gasRun('apiGuardarItemCatalogo', catalogoEnEdicion.value);
-              // Protección de entorno: Si la respuesta trae el item lo usamos, si no (modo local), creamos uno virtual
-              const itemGuardado = (respuesta && respuesta.item) ? respuesta.item : { ...catalogoEnEdicion.value, id_catalogo: Date.now().toString() };
-              
-              // Refuerzo de seguridad visual
-              itemGuardado.origen = 'Floema';
-
-              // Actualización Reactiva Garantizada de la Tabla
-              if (!catalogoEnEdicion.value.id_catalogo) {
-                catalogosLocales.value.unshift(itemGuardado); // Lo coloca al principio de la lista
-              } else {
-                const index = catalogosLocales.value.findIndex(c => c.id_catalogo === itemGuardado.id_catalogo);
-                if (index !== -1) {
-                  catalogosLocales.value.splice(index, 1, itemGuardado); 
-                }
-              }
-              limpiarFormularioCatalogo();
-              Swal.fire({ title: 'Éxito', text: 'Registro guardado correctamente', icon: 'success', timer: 1500, showConfirmButton: false });
-            } catch (error) {}
-          };
-
-          const eliminarItemCatalogo = async (item) => {
-            if (item.origen !== 'Floema' && item.origen) return;
-            
-            const confirmacion = await Swal.fire({
-              title: '¿Eliminar registro?',
-              text: `Borrarás "${item.valor}" de la categoría "${item.categoria}". Esta acción no se puede deshacer.`,
-              icon: 'warning',
-              showCancelButton: true,
-              confirmButtonColor: '#d33',
-              cancelButtonColor: '#718096',
-              confirmButtonText: 'Sí, eliminar'
-            });
-
-            if (confirmacion.isConfirmed) {
-              try {
-                await gasRun('apiEliminarItemCatalogo', item.id_catalogo);
-                catalogosLocales.value = catalogosLocales.value.filter(c => c.id_catalogo !== item.id_catalogo);
-                Swal.fire({ title: 'Eliminado', text: 'El registro ha sido borrado.', icon: 'success', timer: 1500, showConfirmButton: false });
-              } catch (error) {}
-            }
-          };
-
-          // ==========================================
-          // 4. ARRANQUE Y NAVEGACIÓN
-          // ==========================================
-          const cambiarVista = (nuevaVista) => { vistaActual.value = nuevaVista; };
-
-          const cargarDatosArranque = async () => {
-            try {
-              const datos = await gasRun('apiObtenerDatosArranque');
-              tramitesLocales.value = datos.tramites || [];
-              catalogosLocales.value = datos.catalogos || []; 
-              cambiarVista('MenuPrincipal'); 
-            } catch (e) {
-              cambiarVista('MenuPrincipal'); 
-            }
-          };
-
-          const actualizarDashboard = async () => {
-            // Ponemos la vista en estado de carga para que el usuario sepa que está refrescando
-            vistaActual.value = 'Cargando'; 
-            await cargarDatosArranque(); // Llama al backend, trae datos frescos y vuelve a abrir el MenuPrincipal
-          };
-
-          // ==========================================
-          // LÓGICA DE IMPORTACIÓN DE PREGUNTAS (NUEVO)
-          // ==========================================
-          const importTramiteSeleccionado = ref('');
-          const preguntasAImportar = ref([]);
-          const cargandoImportacion = ref(false);
-
-          const abrirModalImportar = () => {
-            // Reiniciamos los valores cada vez que se abre la ventana
-            importTramiteSeleccionado.value = '';
-            preguntasAImportar.value = [];
-            
-            // Instanciamos y abrimos el Modal de Bootstrap nativamente
-            const modalElement = document.getElementById('modalImportar');
-            const modalInstance = bootstrap.Modal.getOrCreateInstance(modalElement);
-            modalInstance.show();
-          };
-
-          const cargarPreguntasAImportar = async () => {
-            if (!importTramiteSeleccionado.value) {
-              preguntasAImportar.value = [];
-              return;
-            }
-            
-            cargandoImportacion.value = true;
-            try {
-              // Llamamos al backend reutilizando nuestra función de lectura
-              const response = await gasRun('apiObtenerCriteriosTramite', importTramiteSeleccionado.value);
-              if (response && response.criterios) {
-                // Mapeamos las preguntas agregando un flag 'seleccionada' para el checkbox
-                preguntasAImportar.value = response.criterios.map(c => ({
-                  ...c,
-                  seleccionada: false // Inician desmarcadas por defecto
-                }));
-              }
-            } catch (error) {
-               console.error("Error al cargar preguntas para importar:", error);
-               preguntasAImportar.value = [];
-            } finally {
-              cargandoImportacion.value = false;
-            }
-          };
-
-          const ejecutarImportacion = () => {
-            const seleccionadas = preguntasAImportar.value.filter(p => p.seleccionada);
-            if (seleccionadas.length === 0) return;
-
-            seleccionadas.forEach(preg => {
-              criteriosBorrador.value.push({
-                tipo_input: preg.tipo_input,
-                etiqueta_pregunta: preg.etiqueta_pregunta,
-                opciones_json: preg.opciones_json || '',
-                ancho: preg.ancho || 'col-md-12', // <--- AGREGA ESTO AQUÍ TAMBIÉN
-                _expanded: false 
-              });
-            });
-
-            const modalInstance = bootstrap.Modal.getInstance(document.getElementById('modalImportar'));
-            if (modalInstance) modalInstance.hide();
-
-            Swal.fire({
-              toast: true, position: 'top-end', icon: 'success', 
-              title: `${seleccionadas.length} preguntas importadas`, 
-              showConfirmButton: false, timer: 2500
-            });
-          };
-
-          // ==========================================
-          // LÓGICA DE OPERACIÓN (EVALUACIONES)
-          // ==========================================
-          const evaluacionActiva = ref({
-            tramite: null,
-            id_plantilla: null, // NUEVO
-            id_expediente: '',  // NUEVO
-            observaciones: '',  // NUEVO
-            id_evaluacion: null,
-            criterios: [],
-            respuestas: {},
-            cargando: false
-          });
-
-          const menuTramitesAbierto = ref(true); // Inicia abierto por defecto
-          
-          const modoEvaluacion = ref('lista'); // Controla si vemos la 'lista' o el 'formulario'
-
-          // ... (debajo de const modoEvaluacion = ref('lista');)
-          const tabActivoEvaluacion = ref('General');
-          
-          const tabsEvaluacionConfigurados = computed(() => {
-            if (!evaluacionActiva.value.criterios) return [];
-            const tabs = [];
-            let currentTab = { nombre: 'General', campos: [] }; // Pestaña por defecto si el usuario no pone ninguna
-            
-            evaluacionActiva.value.criterios.forEach(crit => {
-              if (crit.tipo_input === 'tab') {
-                if (currentTab.campos.length > 0 || tabs.length > 0) tabs.push(currentTab);
-                currentTab = { nombre: crit.etiqueta_pregunta, campos: [] };
-              } else {
-                currentTab.campos.push(crit);
-              }
-            });
-            // Empujamos la última pestaña
-            if (currentTab.campos.length > 0 || tabs.length === 0) tabs.push(currentTab);
-            return tabs;
-          });
-
-          // Reemplaza tu abrirFormularioNuevaEvaluacion actual por esta:
-          const abrirFormularioNuevaEvaluacion = async () => {
-            modoEvaluacion.value = 'formulario';
-
-            evaluacionActiva.value.id_evaluacion = null; // Reinicia el ID para que sea una nueva
-
-            evaluacionActiva.value.criterios = [];
-            evaluacionActiva.value.respuestas = {};
-            evaluacionActiva.value.id_expediente = '';
-            evaluacionActiva.value.observaciones = '';
-            evaluacionActiva.value.cargando = true;
-
-            try {
-              const response = await gasRun('apiObtenerCriteriosTramite', evaluacionActiva.value.tramite.id_tramite);
-              if (response && response.criterios) {
-                evaluacionActiva.value.criterios = response.criterios;
-                
-                // Guardamos el id_plantilla actual para enviarlo a la DB
-                if (response.criterios.length > 0) {
-                  evaluacionActiva.value.id_plantilla = response.criterios[0].id_plantilla;
-                }
-
-                response.criterios.forEach(c => {
-                  if (c.tipo_input !== 'tab' && c.tipo_input !== 'titulo') {
-                    // AHORA LAS RESPUESTAS SE ATAN AL ID_CRITERIO (Llave foránea), no al texto
-                    evaluacionActiva.value.respuestas[c.id_criterio] = {
-                      valor: '',
-                      es_archivo: c.tipo_input === 'file'
-                    };
-                  }
-                });
-                tabActivoEvaluacion.value = tabsEvaluacionConfigurados.value[0]?.nombre || 'General';
-              }
-            } catch (error) {
-              console.error(error);
-            } finally {
-              evaluacionActiva.value.cargando = false;
-            }
-          };
-
-          
-
-          const columnasDinamicasTabla = ref([]); // <-- NUEVA VARIABLE
-
-          const seleccionarTramiteParaEvaluacion = async (tramite) => {
-            evaluacionActiva.value.tramite = tramite;
-            modoEvaluacion.value = 'lista';
-            listaEvaluaciones.value = [];
-            columnasDinamicasTabla.value = []; // Limpiamos al cambiar
-            evaluacionActiva.value.cargando = true;
-
-            try {
-              const res = await gasRun('apiObtenerEvaluacionesPorTramite', tramite.id_tramite);
-              if (res && res.success) {
-                listaEvaluaciones.value = res.evaluaciones || [];
-                columnasDinamicasTabla.value = res.columnasDinamicas || []; // Cargamos las columnas
-              }
-            } catch (error) {
-              console.error(error);
-            } finally {
-              evaluacionActiva.value.cargando = false;
-            }
-          };
-
-          const listaEvaluaciones = ref([]); // Almacena el historial de la DB
-
-          const formatearFecha = (fechaISO) => {
-            if (!fechaISO) return '-';
-            const fecha = new Date(fechaISO);
-            return fecha.toLocaleDateString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
-          };
-
-          const obtenerOpcionesCatalogo = (categoria) => {
-            return catalogosLocales.value
-              .filter(c => c.categoria === categoria && c.estado === 'Activo')
-              .map(c => c.valor);
-          };
-
-          const guardarEvaluacion = async () => {
-            if (!evaluacionActiva.value.id_expediente) {
-              return Swal.fire('Atención', 'Debe ingresar el ID del Expediente.', 'warning');
-            }
-
-            // Convertir el diccionario a un Array para la base de datos
-            const payloadRespuestas = [];
-            for (const [idCrit, dataResp] of Object.entries(evaluacionActiva.value.respuestas)) {
-              if (dataResp.valor !== '') {
-                payloadRespuestas.push({
-                  id_criterio: idCrit,
-                  valor: dataResp.valor,
-                  es_archivo: dataResp.es_archivo
-                });
-              }
-            }
-
-            if (payloadRespuestas.length === 0) {
-              return Swal.fire('Formulario Vacío', 'Debe completar al menos un campo.', 'warning');
-            }
-
-            const payload = {
-              id_evaluacion: evaluacionActiva.value.id_evaluacion,
-              tramite: evaluacionActiva.value.tramite,
-              id_plantilla: evaluacionActiva.value.id_plantilla,
-              id_expediente: evaluacionActiva.value.id_expediente,
-              observaciones: evaluacionActiva.value.observaciones,
-              puntuacion_total: 0, // Si luego agregas pesos, lo calculas aquí
-              criterios_snapshot: evaluacionActiva.value.criterios, // <--- AQUÍ SE ENVÍA LA FOTO DEL FORMULARIO
-              respuestas: payloadRespuestas
-            };
-
-            try {
-              const res = await gasRun('apiGuardarEvaluacionCompleta', payload);
-              if (res && res.success) {
-                Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Registrado con éxito', showConfirmButton: false, timer: 2000 });
-                seleccionarTramiteParaEvaluacion(evaluacionActiva.value.tramite);
-              }
-            } catch (error) {}
-          };
-
-          const editarEvaluacion = async (ev) => {
-            modoEvaluacion.value = 'formulario';
-            evaluacionActiva.value.criterios = [];
-            evaluacionActiva.value.respuestas = {};
-            evaluacionActiva.value.id_evaluacion = ev.id_evaluacion; // Seteamos el ID a editar
-            evaluacionActiva.value.id_expediente = ev.id_expediente;
-            evaluacionActiva.value.observaciones = ev.observaciones;
-            evaluacionActiva.value.cargando = true;
-
-            try {
-              // Ya no pedimos la plantilla actual a ciegas, pedimos el detalle que trae el snapshot
-              const resDetalle = await gasRun('apiObtenerDetalleEvaluacion', ev.id_evaluacion);
-
-              if (resDetalle && resDetalle.success) {
-                
-                // 1. Si la evaluación tiene snapshot guardado, lo usamos para reconstruir el formulario.
-                // Si no tiene (porque es una evaluación muy antigua), usamos la plantilla actual como salvavidas.
-                if (resDetalle.snapshot && resDetalle.snapshot.length > 0) {
-                  evaluacionActiva.value.criterios = resDetalle.snapshot;
-                } else {
-                  const resCrit = await gasRun('apiObtenerCriteriosTramite', evaluacionActiva.value.tramite.id_tramite);
-                  evaluacionActiva.value.criterios = resCrit.criterios || [];
-                }
-
-                if (evaluacionActiva.value.criterios.length > 0) {
-                  evaluacionActiva.value.id_plantilla = evaluacionActiva.value.criterios[0].id_plantilla;
-                }
-
-                // 2. Extraemos las respuestas
-                let respuestasDB = resDetalle.respuestas || {};
-
-                // 3. Emparejamos el formulario (snapshot o plantilla) con las respuestas guardadas
-                evaluacionActiva.value.criterios.forEach(c => {
-                  if (c.tipo_input !== 'tab' && c.tipo_input !== 'titulo') {
-                    evaluacionActiva.value.respuestas[c.id_criterio] = { 
-                      valor: respuestasDB[c.id_criterio] || '', // Si hay guardado lo pone, si no, vacío
-                      es_archivo: c.tipo_input === 'file' 
-                    };
-                  }
-                });
-                tabActivoEvaluacion.value = tabsEvaluacionConfigurados.value[0]?.nombre || 'General';
-              }
-            } catch (error) {} finally { evaluacionActiva.value.cargando = false; }
-          };
-
-          onMounted(() => { cargarDatosArranque(); });
-
-          // ==========================================
-          // 5. EXPOSICIÓN DE VARIABLES A HTML
-          // ==========================================
-          return {
-            vistaActual, cambiarVista, tramitesLocales, catalogosLocales, tituloVista, filtroOrigen, crearNuevoTramite, eliminarTramite, 
-            tramiteSeleccionado, criteriosBorrador, seleccionarTramite, agregarCriterio, eliminarCriterio, guardarConfiguracionEAV, menuPrincipalAbierto,
-            
-            // ---> AÑADIDOS Y CORREGIDOS PARA OPERACIÓN (EVALUACIÓN):
-            evaluacionActiva, seleccionarTramiteParaEvaluacion, abrirFormularioNuevaEvaluacion, guardarEvaluacion, obtenerOpcionesCatalogo, modoEvaluacion, listaEvaluaciones, formatearFecha, tabActivoEvaluacion, tabsEvaluacionConfigurados,menuTramitesAbierto, editarEvaluacion, actualizarDashboard, columnasDinamicasTabla, 
-            
-            arrastrarInicio, arrastrarFin, arrastrarSobre, arrastrarFuera, arrastrarSoltar,
-            filtroCategoria, categoriasCatalogoUnicas, filtroCatalogo, catalogoEnEdicion, catalogosFiltrados, limpiarFormularioCatalogo, editarItemCatalogo, guardarItemCatalogo, eliminarItemCatalogo,
-            abrirModalImportar, importTramiteSeleccionado, preguntasAImportar, cargandoImportacion, cargarPreguntasAImportar, ejecutarImportacion
-          };
+    /* ═════════════════════════════════════════
+       GAS RUNNER — Wrapper de google.script.run
+    ═════════════════════════════════════════ */
+    const gasRun = (serverMethod, ...args) => {
+      return new Promise((resolve, reject) => {
+        if (typeof google === 'undefined') {
+          console.warn("Entorno local — simulando respuesta GAS.");
+          setTimeout(() => resolve({ catalogos: [], tramites: [], config: [] }), 800);
+          return;
         }
-      }).mount('#app');
-    </script>
+        Swal.fire({
+          title: 'Procesando...',
+          allowOutsideClick: false,
+          background: '#fff',
+          color: '#0F1D2B',
+          didOpen: () => Swal.showLoading()
+        });
+        google.script.run
+          .withSuccessHandler(result => { setTimeout(() => { Swal.close(); resolve(result); }, 150); })
+          .withFailureHandler(error  => { Swal.fire({ icon: 'error', title: 'Error', text: error.message, confirmButtonColor: '#00B4D8' }); reject(error); })
+          [serverMethod](...args);
+      });
+    };
+
+    const { createApp, ref, onMounted, computed } = Vue;
+
+    createApp({
+      setup() {
+        /* ─────────────────────────
+           ESTADO GLOBAL
+        ───────────────────────── */
+        const vistaActual   = ref('Cargando');
+        const menuPrincipalAbierto = ref(true);
+        const tramitesLocales  = ref([]);
+        const catalogosLocales = ref([]);
+
+        // Inicial del usuario para el avatar
+        const userInitial = computed(() => {
+          const email = '<?= typeof userEmail !== "undefined" ? userEmail : "U" ?>';
+          return email ? email[0].toUpperCase() : 'U';
+        });
+
+        const tituloVista = computed(() => {
+          switch(vistaActual.value) {
+            case 'MenuPrincipal': return 'Panel de Control';
+            case 'Evaluacion':    return 'Evaluación Documental';
+            case 'Admin':         return 'Diseñador de Formularios';
+            case 'Catalogos':     return 'Diccionario de Datos';
+            default: return 'Floema RNME';
+          }
+        });
+
+        /* ─────────────────────────
+           ADMIN EAV
+        ───────────────────────── */
+        const tramiteSeleccionado = ref(null);
+        const criteriosBorrador   = ref([]);
+
+        const crearNuevoTramite = async () => {
+          const { value: nombreTramite } = await Swal.fire({
+            title: 'Nuevo Trámite',
+            input: 'text',
+            inputLabel: 'Nombre del trámite',
+            inputPlaceholder: 'Ej. Homologación de Equipos',
+            showCancelButton: true,
+            confirmButtonColor: '#00B4D8',
+            cancelButtonColor: '#64748B',
+            confirmButtonText: 'Crear',
+            cancelButtonText: 'Cancelar',
+            inputValidator: v => !v?.trim() ? 'Ingrese un nombre para continuar.' : null
+          });
+          if (nombreTramite) {
+            try {
+              const res = await gasRun('apiGuardarTramite', nombreTramite);
+              if (res?.success) {
+                tramitesLocales.value.push(res.tramite);
+                seleccionarTramite(res.tramite);
+                Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Trámite creado', showConfirmButton: false, timer: 2000 });
+              }
+            } catch(e) {}
+          }
+        };
+
+        const eliminarTramite = async (tramite) => {
+          const conf = await Swal.fire({
+            title: '¿Eliminar trámite?',
+            text: `Se eliminará "${tramite.nombre_tramite}".`,
+            icon: 'warning', showCancelButton: true,
+            confirmButtonColor: '#EF4444', cancelButtonColor: '#64748B',
+            confirmButtonText: 'Eliminar', cancelButtonText: 'Cancelar'
+          });
+          if (conf.isConfirmed) {
+            try {
+              await gasRun('apiEliminarTramite', tramite.id_tramite);
+              tramitesLocales.value = tramitesLocales.value.filter(t => t.id_tramite !== tramite.id_tramite);
+              if (tramiteSeleccionado.value?.id_tramite === tramite.id_tramite) {
+                tramiteSeleccionado.value = null; criteriosBorrador.value = [];
+              }
+              Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Eliminado', showConfirmButton: false, timer: 2000 });
+            } catch(e) {}
+          }
+        };
+
+        const seleccionarTramite = async (tramite) => {
+          tramiteSeleccionado.value = tramite;
+          criteriosBorrador.value = [];
+          try {
+            const res = await gasRun('apiObtenerCriteriosTramite', tramite.id_tramite);
+            if (res?.criterios?.length > 0) {
+              criteriosBorrador.value = res.criterios.map(c => ({
+                tipo_input: c.tipo_input, etiqueta_pregunta: c.etiqueta_pregunta,
+                opciones_json: c.opciones_json || '', ancho: c.ancho || 'col-md-12',
+                mostrar_en_tabla: c.mostrar_en_tabla === true || String(c.mostrar_en_tabla).toLowerCase() === 'true',
+                _expanded: false
+              }));
+            }
+          } catch(e) {}
+        };
+
+        const guardarConfiguracionEAV = async () => {
+          if (!tramiteSeleccionado.value) return Swal.fire('Error', 'Seleccione un trámite primero.', 'error');
+          if (!criteriosBorrador.value.length) return Swal.fire('Aviso', 'Añada al menos una pregunta.', 'warning');
+          if (criteriosBorrador.value.some(c => !c.etiqueta_pregunta.trim()))
+            return Swal.fire('Atención', 'Todas las preguntas necesitan una etiqueta.', 'warning');
+          try {
+            const res = await gasRun('apiGuardarConfiguracionEAV', { tramite: tramiteSeleccionado.value, criterios: criteriosBorrador.value });
+            if (res?.success) {
+              Swal.fire({ icon: 'success', title: '¡Plantilla guardada!', text: 'La configuración se registró correctamente.', confirmButtonColor: '#00B4D8' });
+            }
+          } catch(e) {}
+        };
+
+        const agregarCriterio = () => {
+          criteriosBorrador.value.push({ tipo_input: 'texto', etiqueta_pregunta: '', opciones_json: '', ancho: 'col-md-12', mostrar_en_tabla: false, _expanded: true });
+        };
+        const eliminarCriterio = i => criteriosBorrador.value.splice(i, 1);
+
+        /* Drag & Drop */
+        const dragIndex = ref(null);
+        const arrastrarInicio = (i, e) => { dragIndex.value = i; e.dataTransfer.effectAllowed = 'move'; setTimeout(() => e.target.classList.add('drag-ghost'), 0); };
+        const arrastrarFin = e => { e.target.classList.remove('drag-ghost'); dragIndex.value = null; };
+        const arrastrarSobre = e => e.currentTarget.classList.add('drag-over');
+        const arrastrarFuera = e => e.currentTarget.classList.remove('drag-over');
+        const arrastrarSoltar = (di, e) => {
+          e.currentTarget.classList.remove('drag-over');
+          if (dragIndex.value !== null && dragIndex.value !== di) {
+            const item = criteriosBorrador.value.splice(dragIndex.value, 1)[0];
+            criteriosBorrador.value.splice(di, 0, item);
+          }
+        };
+
+        /* ─────────────────────────
+           CATÁLOGOS
+        ───────────────────────── */
+        const filtroCatalogo    = ref('');
+        const filtroCategoria   = ref('');
+        const filtroOrigen      = ref('Floema');
+        const catalogoEnEdicion = ref({ categoria: '', valor: '', estado: 'Activo', origen: 'Floema' });
+
+        const categoriasCatalogoUnicas = computed(() => {
+          if (!catalogosLocales.value?.length) return [];
+          return [...new Set(catalogosLocales.value.map(c => c.categoria))].filter(Boolean).sort();
+        });
+
+        const catalogosFiltrados = computed(() => catalogosLocales.value.filter(item => {
+          const origen  = item.origen || 'Floema';
+          const okOrig  = filtroOrigen.value === 'Todos' || origen === filtroOrigen.value;
+          const okCat   = !filtroCategoria.value || item.categoria === filtroCategoria.value;
+          const t       = filtroCatalogo.value.toLowerCase();
+          const okText  = !t || (item.categoria?.toLowerCase().includes(t)) || (item.valor?.toLowerCase().includes(t));
+          return okOrig && okCat && okText;
+        }));
+
+        const limpiarFormularioCatalogo = () => { catalogoEnEdicion.value = { categoria: '', valor: '', estado: 'Activo', origen: 'Floema' }; };
+        const editarItemCatalogo = item => { if (!item.origen || item.origen === 'Floema') catalogoEnEdicion.value = JSON.parse(JSON.stringify(item)); };
+
+        const guardarItemCatalogo = async () => {
+          if (!catalogoEnEdicion.value.categoria || !catalogoEnEdicion.value.valor)
+            return Swal.fire('Error', 'Categoría y Valor son obligatorios.', 'warning');
+          catalogoEnEdicion.value.origen = catalogoEnEdicion.value.origen || 'Floema';
+          try {
+            const res = await gasRun('apiGuardarItemCatalogo', catalogoEnEdicion.value);
+            const item = res?.item ? res.item : { ...catalogoEnEdicion.value, id_catalogo: Date.now().toString() };
+            item.origen = 'Floema';
+            if (!catalogoEnEdicion.value.id_catalogo) {
+              catalogosLocales.value.unshift(item);
+            } else {
+              const idx = catalogosLocales.value.findIndex(c => c.id_catalogo === item.id_catalogo);
+              if (idx !== -1) catalogosLocales.value.splice(idx, 1, item);
+            }
+            limpiarFormularioCatalogo();
+            Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Guardado', showConfirmButton: false, timer: 1500 });
+          } catch(e) {}
+        };
+
+        const eliminarItemCatalogo = async item => {
+          if (item.origen === 'Bitacora') return;
+          const conf = await Swal.fire({
+            title: '¿Eliminar?', text: `"${item.valor}" será borrado.`,
+            icon: 'warning', showCancelButton: true,
+            confirmButtonColor: '#EF4444', cancelButtonColor: '#64748B',
+            confirmButtonText: 'Eliminar', cancelButtonText: 'Cancelar'
+          });
+          if (conf.isConfirmed) {
+            try {
+              await gasRun('apiEliminarItemCatalogo', item.id_catalogo);
+              catalogosLocales.value = catalogosLocales.value.filter(c => c.id_catalogo !== item.id_catalogo);
+              Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Eliminado', showConfirmButton: false, timer: 1500 });
+            } catch(e) {}
+          }
+        };
+
+        /* ─────────────────────────
+           ARRANQUE Y NAVEGACIÓN
+        ───────────────────────── */
+        const cambiarVista = v => { vistaActual.value = v; };
+
+        const cargarDatosArranque = async () => {
+          try {
+            const datos = await gasRun('apiObtenerDatosArranque');
+            tramitesLocales.value  = datos.tramites  || [];
+            catalogosLocales.value = datos.catalogos || [];
+            cambiarVista('MenuPrincipal');
+          } catch(e) { cambiarVista('MenuPrincipal'); }
+        };
+
+        const actualizarDashboard = async () => {
+          vistaActual.value = 'Cargando';
+          await cargarDatosArranque();
+        };
+
+        /* ─────────────────────────
+           IMPORTACIÓN DE PREGUNTAS
+        ───────────────────────── */
+        const importTramiteSeleccionado = ref('');
+        const preguntasAImportar        = ref([]);
+        const cargandoImportacion       = ref(false);
+
+        const abrirModalImportar = () => {
+          importTramiteSeleccionado.value = ''; preguntasAImportar.value = [];
+          bootstrap.Modal.getOrCreateInstance(document.getElementById('modalImportar')).show();
+        };
+
+        const cargarPreguntasAImportar = async () => {
+          if (!importTramiteSeleccionado.value) { preguntasAImportar.value = []; return; }
+          cargandoImportacion.value = true;
+          try {
+            const res = await gasRun('apiObtenerCriteriosTramite', importTramiteSeleccionado.value);
+            preguntasAImportar.value = (res?.criterios || []).map(c => ({ ...c, seleccionada: false }));
+          } catch(e) { preguntasAImportar.value = []; }
+          finally { cargandoImportacion.value = false; }
+        };
+
+        const ejecutarImportacion = () => {
+          preguntasAImportar.value.filter(p => p.seleccionada).forEach(p => {
+            criteriosBorrador.value.push({ tipo_input: p.tipo_input, etiqueta_pregunta: p.etiqueta_pregunta, opciones_json: p.opciones_json || '', ancho: p.ancho || 'col-md-12', mostrar_en_tabla: false, _expanded: false });
+          });
+          bootstrap.Modal.getInstance(document.getElementById('modalImportar'))?.hide();
+          Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: `${preguntasAImportar.value.filter(p => p.seleccionada).length} preguntas importadas`, showConfirmButton: false, timer: 2500 });
+        };
+
+        /* ─────────────────────────
+           EVALUACIONES
+        ───────────────────────── */
+        const evaluacionActiva = ref({ tramite: null, id_plantilla: null, id_expediente: '', observaciones: '', id_evaluacion: null, criterios: [], respuestas: {}, cargando: false });
+        const menuTramitesAbierto  = ref(true);
+        const modoEvaluacion       = ref('lista');
+        const tabActivoEvaluacion  = ref('General');
+        const listaEvaluaciones    = ref([]);
+        const columnasDinamicasTabla = ref([]);
+
+        const tabsEvaluacionConfigurados = computed(() => {
+          if (!evaluacionActiva.value.criterios) return [];
+          const tabs = []; let cur = { nombre: 'General', campos: [] };
+          evaluacionActiva.value.criterios.forEach(c => {
+            if (c.tipo_input === 'tab') { if (cur.campos.length > 0 || tabs.length > 0) tabs.push(cur); cur = { nombre: c.etiqueta_pregunta, campos: [] }; }
+            else cur.campos.push(c);
+          });
+          if (cur.campos.length > 0 || tabs.length === 0) tabs.push(cur);
+          return tabs;
+        });
+
+        const seleccionarTramiteParaEvaluacion = async tramite => {
+          evaluacionActiva.value.tramite = tramite; modoEvaluacion.value = 'lista';
+          listaEvaluaciones.value = []; columnasDinamicasTabla.value = [];
+          evaluacionActiva.value.cargando = true;
+          try {
+            const res = await gasRun('apiObtenerEvaluacionesPorTramite', tramite.id_tramite);
+            if (res?.success) { listaEvaluaciones.value = res.evaluaciones || []; columnasDinamicasTabla.value = res.columnasDinamicas || []; }
+          } catch(e) {}
+          finally { evaluacionActiva.value.cargando = false; }
+        };
+
+        const abrirFormularioNuevaEvaluacion = async () => {
+          modoEvaluacion.value = 'formulario';
+          evaluacionActiva.value = { ...evaluacionActiva.value, id_evaluacion: null, criterios: [], respuestas: {}, id_expediente: '', observaciones: '', cargando: true };
+          try {
+            const res = await gasRun('apiObtenerCriteriosTramite', evaluacionActiva.value.tramite.id_tramite);
+            if (res?.criterios) {
+              evaluacionActiva.value.criterios = res.criterios;
+              if (res.criterios.length > 0) evaluacionActiva.value.id_plantilla = res.criterios[0].id_plantilla;
+              res.criterios.forEach(c => {
+                if (c.tipo_input !== 'tab' && c.tipo_input !== 'titulo') {
+                  if (c.tipo_input === 'adjuntar') {
+                    evaluacionActiva.value.respuestas[c.id_criterio] = { valor: '', nombre: '', estado: 'vacio', errorMsg: '', es_archivo: true };
+                  } else {
+                    evaluacionActiva.value.respuestas[c.id_criterio] = { valor: '', es_archivo: c.tipo_input === 'file' };
+                  }
+                }
+              });
+              tabActivoEvaluacion.value = tabsEvaluacionConfigurados.value[0]?.nombre || 'General';
+            }
+          } catch(e) {}
+          finally { evaluacionActiva.value.cargando = false; }
+        };
+
+        const formatearFecha = iso => {
+          if (!iso) return '—';
+          return new Date(iso).toLocaleDateString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+        };
+
+        const obtenerOpcionesCatalogo = cat => catalogosLocales.value.filter(c => c.categoria === cat && c.estado === 'Activo').map(c => c.valor);
+
+        const guardarEvaluacion = async () => {
+          if (!evaluacionActiva.value.id_expediente) return Swal.fire('Atención', 'Ingrese el ID del Expediente.', 'warning');
+          const respArr = [];
+          for (const [id, d] of Object.entries(evaluacionActiva.value.respuestas)) { if (d.valor !== '') respArr.push({ id_criterio: id, valor: d.valor, es_archivo: d.es_archivo }); }
+          if (!respArr.length) return Swal.fire('Formulario vacío', 'Complete al menos un campo.', 'warning');
+          const payload = { id_evaluacion: evaluacionActiva.value.id_evaluacion, tramite: evaluacionActiva.value.tramite, id_plantilla: evaluacionActiva.value.id_plantilla, id_expediente: evaluacionActiva.value.id_expediente, observaciones: evaluacionActiva.value.observaciones, puntuacion_total: 0, criterios_snapshot: evaluacionActiva.value.criterios, respuestas: respArr };
+          try {
+            const res = await gasRun('apiGuardarEvaluacionCompleta', payload);
+            if (res?.success) {
+              Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Evaluación registrada', showConfirmButton: false, timer: 2000 });
+              seleccionarTramiteParaEvaluacion(evaluacionActiva.value.tramite);
+            }
+          } catch(e) {}
+        };
+
+        const editarEvaluacion = async ev => {
+          modoEvaluacion.value = 'formulario';
+          evaluacionActiva.value = { ...evaluacionActiva.value, criterios: [], respuestas: {}, id_evaluacion: ev.id_evaluacion, id_expediente: ev.id_expediente, observaciones: ev.observaciones, cargando: true };
+          try {
+            const det = await gasRun('apiObtenerDetalleEvaluacion', ev.id_evaluacion);
+            if (det?.success) {
+              if (det.snapshot?.length > 0) { evaluacionActiva.value.criterios = det.snapshot; }
+              else {
+                const rc = await gasRun('apiObtenerCriteriosTramite', evaluacionActiva.value.tramite.id_tramite);
+                evaluacionActiva.value.criterios = rc.criterios || [];
+              }
+              if (evaluacionActiva.value.criterios.length > 0) evaluacionActiva.value.id_plantilla = evaluacionActiva.value.criterios[0].id_plantilla;
+              evaluacionActiva.value.criterios.forEach(c => {
+                if (c.tipo_input !== 'tab' && c.tipo_input !== 'titulo') {
+                  const valorGuardado = det.respuestas?.[c.id_criterio] || '';
+                  if (c.tipo_input === 'adjuntar') {
+                    // Si hay un ID de Drive guardado, mostramos como "listo" con nombre genérico
+                    evaluacionActiva.value.respuestas[c.id_criterio] = {
+                      valor: valorGuardado,
+                      nombre: valorGuardado ? 'Archivo adjuntado previamente' : '',
+                      estado: valorGuardado ? 'listo' : 'vacio',
+                      errorMsg: '', es_archivo: true
+                    };
+                  } else {
+                    evaluacionActiva.value.respuestas[c.id_criterio] = { valor: valorGuardado, es_archivo: c.tipo_input === 'file' };
+                  }
+                }
+              });
+              tabActivoEvaluacion.value = tabsEvaluacionConfigurados.value[0]?.nombre || 'General';
+            }
+          } catch(e) {}
+          finally { evaluacionActiva.value.cargando = false; }
+        };
+
+        /* ─────────────────────────
+           SUBIDA DE ARCHIVOS (ADJUNTAR)
+        ───────────────────────── */
+
+        // MIME types permitidos (frontend + backend deben coincidir)
+        const TIPOS_PERMITIDOS = {
+          'application/pdf': 'PDF',
+          'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'DOCX',
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'XLSX',
+          'text/plain': 'TXT',
+          // Aliases que algunos SO reportan para .docx
+          'application/msword': 'DOC',
+          'application/vnd.ms-excel': 'XLS'
+        };
+        const MAX_MB_ADJUNTAR = 5;
+
+        const subirArchivo = async (criterioId, event) => {
+          const file = event.target.files?.[0];
+          if (!file) return;
+          // Limpiar el input para permitir subir el mismo archivo de nuevo
+          event.target.value = '';
+
+          // Validar tipo
+          if (!TIPOS_PERMITIDOS[file.type]) {
+            return Swal.fire({
+              icon: 'warning', title: 'Tipo de archivo no permitido',
+              text: 'Solo se aceptan archivos PDF, DOCX, XLSX o TXT.',
+              confirmButtonColor: '#00B4D8'
+            });
+          }
+
+          // Validar peso
+          if (file.size > MAX_MB_ADJUNTAR * 1024 * 1024) {
+            return Swal.fire({
+              icon: 'warning', title: 'Archivo demasiado grande',
+              text: `El archivo supera el límite de ${MAX_MB_ADJUNTAR} MB.`,
+              confirmButtonColor: '#00B4D8'
+            });
+          }
+
+          // Validar que el ID de expediente esté completo
+          if (!evaluacionActiva.value.id_expediente?.trim()) {
+            return Swal.fire({
+              icon: 'info', title: 'ID de Expediente requerido',
+              text: 'Ingresa el ID del Expediente antes de adjuntar archivos para determinar la carpeta de destino.',
+              confirmButtonColor: '#00B4D8'
+            });
+          }
+
+          // Setear estado subiendo
+          evaluacionActiva.value.respuestas[criterioId].nombre  = file.name;
+          evaluacionActiva.value.respuestas[criterioId].estado  = 'subiendo';
+          evaluacionActiva.value.respuestas[criterioId].errorMsg = '';
+
+          try {
+            // Leer el archivo como base64 (sin el encabezado data:...;base64,)
+            const base64 = await new Promise((resolve, reject) => {
+              const reader = new FileReader();
+              reader.onload  = e => resolve(e.target.result.split(',')[1]);
+              reader.onerror = () => reject(new Error('No se pudo leer el archivo.'));
+              reader.readAsDataURL(file);
+            });
+
+            // Llamar al backend GAS
+            const resp = await gasRun('apiSubirEvidencia', {
+              base64:         base64,
+              nombreArchivo:  file.name,
+              mimeType:       file.type,
+              nombreTramite:  evaluacionActiva.value.tramite.nombre_tramite,
+              idExpediente:   evaluacionActiva.value.id_expediente.trim()
+            });
+
+            if (resp?.success) {
+              evaluacionActiva.value.respuestas[criterioId].valor  = resp.fileId;
+              evaluacionActiva.value.respuestas[criterioId].estado = 'listo';
+            } else {
+              throw new Error('El servidor no confirmó el guardado.');
+            }
+          } catch(e) {
+            evaluacionActiva.value.respuestas[criterioId].estado   = 'error';
+            evaluacionActiva.value.respuestas[criterioId].errorMsg = e.message || 'Error desconocido.';
+          }
+        };
+
+        const limpiarArchivo = (criterioId) => {
+          evaluacionActiva.value.respuestas[criterioId] = {
+            valor: '', nombre: '', estado: 'vacio', errorMsg: '', es_archivo: true
+          };
+        };
+
+        onMounted(() => cargarDatosArranque());
+
+        /* ─────────────────────────
+           RETURN
+        ───────────────────────── */
+        return {
+          vistaActual, cambiarVista, tramitesLocales, catalogosLocales, tituloVista, menuPrincipalAbierto, userInitial,
+          tramiteSeleccionado, criteriosBorrador, seleccionarTramite, agregarCriterio, eliminarCriterio, guardarConfiguracionEAV, crearNuevoTramite, eliminarTramite,
+          filtroOrigen, filtroCategoria, filtroCatalogo, catalogoEnEdicion, catalogosFiltrados, categoriasCatalogoUnicas, limpiarFormularioCatalogo, editarItemCatalogo, guardarItemCatalogo, eliminarItemCatalogo,
+          evaluacionActiva, seleccionarTramiteParaEvaluacion, abrirFormularioNuevaEvaluacion, guardarEvaluacion, editarEvaluacion, obtenerOpcionesCatalogo, modoEvaluacion, listaEvaluaciones, formatearFecha, tabActivoEvaluacion, tabsEvaluacionConfigurados, menuTramitesAbierto, columnasDinamicasTabla,
+          subirArchivo, limpiarArchivo,
+          arrastrarInicio, arrastrarFin, arrastrarSobre, arrastrarFuera, arrastrarSoltar,
+          abrirModalImportar, importTramiteSeleccionado, preguntasAImportar, cargandoImportacion, cargarPreguntasAImportar, ejecutarImportacion,
+          actualizarDashboard
+        };
+      }
+    }).mount('#app');
+  </script>
 </body>
 </html>
